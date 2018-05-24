@@ -99,17 +99,23 @@ namespace YourBitcoinManager
 		 */
 		public void Initialize(params object[] _list)
 		{
-			m_idUser = (int)_list[0];
-			m_passwordUser = (string)_list[1];
-			m_idRequest = (long)_list[2];
-
-			string publicKeyAddress = (string)_list[3];
-			string amountTransaction = (string)_list[4];
-			BitCoinController.Instance.CurrentCurrency = (string)_list[5];
+			string publicKeyAddress = "";
+			string amountTransaction = "0";
 			string messageTransaction = LanguageController.Instance.GetText("screen.send.explain.please");
-			if (_list.Length > 6)
+
+			if (_list != null)
 			{
-				messageTransaction = (string)_list[6];
+				if (_list.Length > 2)
+				{
+					publicKeyAddress = (string)_list[0];
+					amountTransaction = (string)_list[1];
+					BitCoinController.Instance.CurrentCurrency = (string)_list[2];
+					messageTransaction = LanguageController.Instance.GetText("screen.send.explain.please");
+					if (_list.Length > 3)
+					{
+						messageTransaction = (string)_list[3];
+					}
+				}
 			}
 
 			m_root = this.gameObject;
@@ -446,15 +452,17 @@ namespace YourBitcoinManager
 		{
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_DONE)
 			{
+				BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinInformationView.EVENT_SCREENINFORMATION_FORCE_DESTRUCTION_POPUP);
+				UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
 				if ((bool)_list[0])
 				{
 					HasChanged = false;
 					BitCoinController.Instance.RefreshBalancePrivateKeys();
 					string transactionID = (string)_list[1];
+					ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.transaction.success"), null, "");
 				}
 				else
-				{
-					UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);					
+				{								
 					string messageError = LanguageController.Instance.GetText("screen.bitcoin.send.transaction.error");
 					if (_list.Length >= 2)
 					{

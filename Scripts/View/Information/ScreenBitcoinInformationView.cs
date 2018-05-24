@@ -301,7 +301,7 @@ namespace YourBitcoinManager
 		 * OnBasicEvent
 		 */
 		private void OnBasicEvent(string _nameEvent, params object[] _list)
-		{
+		{			
 			if (_nameEvent == EVENT_SCREENINFORMATION_FORCE_DESTRUCTION_POPUP)
 			{
 				Destroy();

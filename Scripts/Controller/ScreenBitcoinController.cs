@@ -71,6 +71,8 @@ namespace YourBitcoinManager
 		// ----------------------------------------------	
 		public TextAsset ReadMeFile;
 
+		public string ScreenToLoad = "";
+
 		[Tooltip("All the screens used by the application")]
 		public GameObject[] ScreensPrefabs;
 
@@ -85,7 +87,7 @@ namespace YourBitcoinManager
 		private bool m_hasBeenInitialized = false;
 
 		private string m_screenToLoad = "";
-		
+
 		// ----------------------------------------------
 		// GETTERS/SETTERS
 		// ----------------------------------------------	
@@ -128,6 +130,13 @@ namespace YourBitcoinManager
 
 			BitcoinManagerEventController.Instance.BitcoinManagerEvent += new BitcoinManagerEventHandler(OnBasicEvent);
 			BitcoinEventController.Instance.BitcoinEvent += new BitcoinEventHandler(OnBitcoinEvent);
+
+			if (ScreenToLoad.Length > 0)
+			{
+				LanguageController.Instance.Initialize();
+
+				InitializeBitcoin(ScreenToLoad);
+			}			
 		}
 
 		// -------------------------------------------
