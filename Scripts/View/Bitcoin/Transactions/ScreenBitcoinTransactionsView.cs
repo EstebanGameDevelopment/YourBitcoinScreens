@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using YourBitcoinController;
 using YourCommonTools;
-using YourNetworkingTools;
 
 namespace YourBitcoinManager
 {

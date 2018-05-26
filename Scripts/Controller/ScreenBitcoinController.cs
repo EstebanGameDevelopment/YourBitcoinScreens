@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using YourBitcoinController;
 using YourCommonTools;
-using YourNetworkingTools;
 
 namespace YourBitcoinManager
 {

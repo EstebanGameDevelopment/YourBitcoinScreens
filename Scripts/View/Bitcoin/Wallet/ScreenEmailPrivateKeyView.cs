@@ -6,7 +6,6 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.UI;
 using YourCommonTools;
-using YourNetworkingTools;
 
 namespace YourBitcoinManager
 {

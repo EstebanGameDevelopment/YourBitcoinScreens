@@ -6,8 +6,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using YourBitcoinController;
 using YourCommonTools;
-using YourNetworkingTools;
-using YourRemoteAssistance;
 
 namespace YourBitcoinManager
 {
@@ -453,7 +451,6 @@ namespace YourBitcoinManager
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_DONE)
 			{
 				BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinInformationView.EVENT_SCREENINFORMATION_FORCE_DESTRUCTION_POPUP);
-				UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
 				if ((bool)_list[0])
 				{
 					HasChanged = false;
