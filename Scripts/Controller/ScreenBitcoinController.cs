@@ -86,6 +86,7 @@ namespace YourBitcoinManager
 		private bool m_hasBeenInitialized = false;
 
 		private string m_screenToLoad = "";
+		private object[] m_optionalParams = null;
 
 		// ----------------------------------------------
 		// GETTERS/SETTERS
@@ -142,12 +143,13 @@ namespace YourBitcoinManager
 		/* 
 		 * InitializeBitcoin
 		 */
-		public void InitializeBitcoin(string _screenToLoad = "")
+		public void InitializeBitcoin(string _screenToLoad = "", params object[] _optionalParams)
 		{
 			m_screenToLoad = _screenToLoad;
+			m_optionalParams = _optionalParams;
 			if (m_hasBeenInitialized)
 			{
-				CreateNewScreenNoParameters(m_screenToLoad, TypePreviousActionEnum.DESTROY_ALL_SCREENS);
+				CreateNewScreen(m_screenToLoad, TypePreviousActionEnum.DESTROY_ALL_SCREENS, true, m_optionalParams);
 			}
 			else
 			{
@@ -445,7 +447,7 @@ namespace YourBitcoinManager
 
 					if (m_screenToLoad.Length > 0)
 					{
-						CreateNewScreenNoParameters(m_screenToLoad, TypePreviousActionEnum.DESTROY_ALL_SCREENS);
+						CreateNewScreen(m_screenToLoad, TypePreviousActionEnum.DESTROY_ALL_SCREENS, true, m_optionalParams);
 					}					
 				}
 				BitcoinEventController.Instance.DispatchBitcoinEvent(BitCoinController.EVENT_BITCOINCONTROLLER_ALL_DATA_INITIALIZED);

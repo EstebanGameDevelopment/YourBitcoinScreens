@@ -26,6 +26,7 @@ namespace YourBitcoinManager
 		public const string EVENT_BASICEVENT_DELAYED_CALL			= "EVENT_BASICEVENT_DELAYED_CALL";
 		public const string EVENT_BASICEVENT_TOTAL_UNITS_AVAILABLE	= "EVENT_BASICEVENT_TOTAL_UNITS_AVAILABLE";
 		public const string EVENT_BASICEVENT_TOTAL_TIME				= "EVENT_BASICEVENT_TOTAL_TIME";
+		public const string EVENT_BASICEVENT_USER_DATA_UPDATED		= "EVENT_BASICEVENT_USER_DATA_UPDATED";
 
 		public event BitcoinManagerEventHandler BitcoinManagerEvent;
 

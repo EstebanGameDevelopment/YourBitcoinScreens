@@ -73,11 +73,30 @@ namespace YourBitcoinManager
 		private bool m_hasChanged = false;
 		private GameObject m_buttonSave;
 
+		private bool m_considerEnableEdition = false;
+		private bool m_enableEdition = true;
+		private string m_currentPublicKey = "";
+
 		public bool HasChanged
 		{
 			get { return m_hasChanged; }
 			set { m_hasChanged = value; }
 		}
+		public bool EnableEdition
+		{
+			get { return m_enableEdition; }
+			set
+			{
+				m_enableEdition = value;
+				if (m_completeKey != null) m_completeKey.interactable = m_enableEdition;
+				if (m_labelKey != null) m_labelKey.interactable = m_enableEdition;
+				if (m_enableEdition)
+				{
+					if (m_buttonSave != null) EnableVisualSaveButton();
+				}
+			}
+		}
+
 
 		// -------------------------------------------
 		/* 
@@ -85,6 +104,16 @@ namespace YourBitcoinManager
 		 */
 		public void Initialize(params object[] _list)
 		{
+			if (_list != null)
+			{
+				if (_list.Length > 0)
+				{
+					m_currentPublicKey = (string)_list[0];
+					m_considerEnableEdition = true;					
+				}				
+			}
+			UpdateEnableEdition();
+
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");
 
@@ -140,6 +169,10 @@ namespace YourBitcoinManager
 			m_createNewWallet = m_container.Find("CreatePrivateKey").gameObject;
 			m_createNewWallet.GetComponent<Button>().onClick.AddListener(OnCreateNewWallet);
 			m_createNewWallet.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.bitcoin.create.new.wallet");
+			if (m_currentPublicKey.Length > 0)
+			{
+				m_createNewWallet.SetActive(false);
+			}
 
 			BitcoinManagerEventController.Instance.BitcoinManagerEvent += new BitcoinManagerEventHandler(OnBitcoinManagerEvent);
 			BitcoinEventController.Instance.BitcoinEvent += new BitcoinEventHandler(OnBitcoinEvent);
@@ -149,6 +182,8 @@ namespace YourBitcoinManager
 			m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + BitCoinController.Instance.Network.ToString();
 
 			BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinInformationView.EVENT_SCREENINFORMATION_FORCE_DESTRUCTION_WAIT);
+
+			UpdateEnableEdition();
 		}
 
 		// -------------------------------------------
@@ -209,6 +244,26 @@ namespace YourBitcoinManager
 			}
 		}
 
+		// -------------------------------------------
+		/* 
+		 * UpdateEnableEdition
+		 */
+		private void UpdateEnableEdition()
+		{
+			if (m_considerEnableEdition)
+			{
+				if ((m_currentPublicKey.Length > 0)
+					|| (BitCoinController.Instance.CurrentPublicKey.Length > 0))
+				{
+					EnableEdition = BitCoinController.Instance.CurrentPublicKey != m_currentPublicKey;
+				}
+				else
+				{
+					EnableEdition = true;
+				}
+			}
+		}
+		
 		// -------------------------------------------
 		/* 
 		 * OnValueMainKeyChanged
@@ -292,6 +347,7 @@ namespace YourBitcoinManager
 
 				m_greenLight.SetActive(false);
 				m_redCross.SetActive(false);
+				m_buttonSave.SetActive(false);
 				m_approveMessage.text = LanguageController.Instance.GetText("screen.location.key.is.not.defined.yet");
 			}
 		}
@@ -445,10 +501,10 @@ namespace YourBitcoinManager
 				UpdateValidationVisualizationKey(privateKey);
 				m_hasChanged = false;
 				BitCoinController.Instance.CurrentPrivateKey = privateKey;
+				m_currentPublicKey = BitCoinController.Instance.CurrentPublicKey;
+				UpdateEnableEdition();
 				BitcoinManagerEventController.Instance.DispatchBasicEvent(BitCoinController.EVENT_BITCOINCONTROLLER_UPDATE_ACCOUNT_DATA);
-
-				// UPDATE DATABASE
-				// HOLA PUTA
+				BasicSystemEventController.Instance.DispatchBasicSystemEvent(BitCoinController.EVENT_BITCOINCONTROLLER_PUBLIC_KEY_SELECTED, BitCoinController.Instance.CurrentPublicKey);
 			}
 			else
 			{
@@ -469,6 +525,43 @@ namespace YourBitcoinManager
 
 		// -------------------------------------------
 		/* 
+		 * EnableVisualSaveButton
+		 */
+		private void EnableVisualSaveButton()
+		{
+			if (m_considerEnableEdition)
+			{
+				if (m_currentPublicKey == "")
+				{
+					if (m_greenLight.activeSelf)
+					{
+						m_buttonSave.SetActive(m_enableEdition);
+					}
+					else
+					{
+						m_buttonSave.SetActive(true);
+					}
+				}
+				else
+				{
+					if (m_greenLight.activeSelf)
+					{
+						m_buttonSave.SetActive(m_enableEdition);
+					}
+					else
+					{
+						m_buttonSave.SetActive(false);
+					}
+				}
+			}
+			else
+			{
+				m_buttonSave.SetActive(true);
+			}
+		}
+
+		// -------------------------------------------
+		/* 
 		 * UpdateValidationVisualizationKey
 		 */
 		private void UpdateValidationVisualizationKey(string _privateKey)
@@ -481,8 +574,33 @@ namespace YourBitcoinManager
 				m_greenLight.SetActive(true);
 				m_emailPrivateKey.SetActive(true);
 				m_approveMessage.text = LanguageController.Instance.GetText("screen.location.key.valid");
-				m_buttonSave.SetActive(true);
-				SetNewPrivateKey(_privateKey);
+				if (!m_considerEnableEdition)
+				{
+					SetNewPrivateKey(_privateKey);
+					m_buttonSave.SetActive(true);
+				}
+				else
+				{
+					if (m_currentPublicKey.Length == 0)
+					{
+						SetNewPrivateKey(_privateKey);
+						EnableVisualSaveButton();
+					}
+					else
+					{
+						if (m_currentPublicKey != BitCoinController.Instance.GetPublicKey(_privateKey))
+						{
+							string warning = LanguageController.Instance.GetText("message.error");
+							string description = LanguageController.Instance.GetText("screen.bitcoin.wallet.not.the.same.public.key");
+							ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, warning, description, null, SUB_EVENT_SCREENBITCOINPRIVATEKEY_HIDE_INFO_BUTTONS);
+						}
+						else
+						{
+							m_buttonSave.SetActive((BitCoinController.Instance.CurrentPrivateKey != _privateKey));
+							SetNewPrivateKey(_privateKey);
+						}
+					}
+				}
 			}
 			else
 			{
@@ -629,6 +747,13 @@ namespace YourBitcoinManager
 			if (_nameEvent == EVENT_SCREENPROFILE_LOAD_CHECKING_KEY_PROCESS)
 			{
 				CheckKeyEnteredInMainField();
+			}
+			if (_nameEvent == BitcoinManagerEventController.EVENT_BASICEVENT_USER_DATA_UPDATED)
+			{
+				if ((bool)_list[0])
+				{
+					UpdateEnableEdition();
+				}
 			}
 			if (_nameEvent == ScreenBitcoinController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
 			{

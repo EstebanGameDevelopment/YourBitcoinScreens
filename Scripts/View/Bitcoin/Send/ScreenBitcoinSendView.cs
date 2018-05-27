@@ -311,7 +311,7 @@ namespace YourBitcoinManager
 		 */
 		public void OnRealCheckWallet()
 		{
-			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, TypePreviousActionEnum.HIDE_CURRENT_SCREEN, true, false);
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, TypePreviousActionEnum.HIDE_CURRENT_SCREEN, true, BitCoinController.Instance.CurrentPublicKey);
 		}
 
 		// -------------------------------------------
