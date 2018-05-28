@@ -15,7 +15,7 @@ namespace YourBitcoinManager
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class ScreenBitcoinSendView : ScreenBaseView, IBasicScreenView
+	public class ScreenBitcoinSendView : ScreenBaseView, IBasicView
 	{
 		public const string SCREEN_NAME = "SCREEN_SEND";
 
@@ -95,7 +95,7 @@ namespace YourBitcoinManager
 		/* 
 		 * Constructor
 		 */
-		public void Initialize(params object[] _list)
+		public override void Initialize(params object[] _list)
 		{
 			string publicKeyAddress = "";
 			string amountTransaction = "0";
@@ -182,7 +182,7 @@ namespace YourBitcoinManager
 			m_messageInput.text = messageTransaction;
 			m_container.Find("Pay/ExecutePayment").GetComponent<Button>().onClick.AddListener(OnExecutePayment);
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent += new BitcoinManagerEventHandler(OnBitcoinManagerEvent);
+			UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);			
 			BitcoinEventController.Instance.BitcoinEvent += new BitcoinEventHandler(OnBitcoinEvent);
 
 			// UPDATE SELECTION CURRENCY
@@ -212,9 +212,9 @@ namespace YourBitcoinManager
 		{
 			if (base.Destroy()) return true;
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent -= OnBitcoinManagerEvent;
+			UIEventController.Instance.UIEvent -= OnUIEvent;
 			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
 
 			return false;
 		}
@@ -301,7 +301,7 @@ namespace YourBitcoinManager
 		 */
 		private void OnCheckWallet()
 		{
-			ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_WAIT, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
+			ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
 			Invoke("OnRealCheckWallet", 0.1f);
 		}
 
@@ -311,7 +311,7 @@ namespace YourBitcoinManager
 		 */
 		public void OnRealCheckWallet()
 		{
-			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, TypePreviousActionEnum.HIDE_CURRENT_SCREEN, true, BitCoinController.Instance.CurrentPublicKey);
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, true, BitCoinController.Instance.CurrentPublicKey);
 		}
 
 		// -------------------------------------------
@@ -348,7 +348,7 @@ namespace YourBitcoinManager
 			{
 				string warning = LanguageController.Instance.GetText("message.warning");
 				string description = LanguageController.Instance.GetText("message.exit.without.apply.changes");
-				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_CONFIRMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, warning, description, null, SUB_EVENT_SCREENBITCOIN_CONFIRMATION_EXIT_TRANSACTION);
+				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, warning, description, null, SUB_EVENT_SCREENBITCOIN_CONFIRMATION_EXIT_TRANSACTION);
 			}
 			else
 			{
@@ -366,12 +366,12 @@ namespace YourBitcoinManager
 			if (m_validPublicAddressToSend)
 			{
 				description = LanguageController.Instance.GetText("screen.bitcoin.send.valid.address");
-				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), description, null, "");
+				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), description, null, "");
 			}
 			else
 			{
 				description = LanguageController.Instance.GetText("screen.bitcoin.send.invalid.address");
-				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), description, null, "");
+				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), description, null, "");
 			}
 		}
 
@@ -389,27 +389,27 @@ namespace YourBitcoinManager
 #endif
 			if (!m_validPublicAddressToSend)
 			{
-				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), LanguageController.Instance.GetText("screen.bitcoin.send.no.valid.address.to.send"), null, "");
+				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), LanguageController.Instance.GetText("screen.bitcoin.send.no.valid.address.to.send"), null, "");
 			}
 			else
 			{
 				decimal amountFeeUSD = m_feeInBitcoins * BitCoinController.Instance.CurrenciesExchange[BitCoinController.CODE_DOLLAR];
 				if (amountFeeUSD < 0.19m)
 				{
-					ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_CONFIRMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.warning"), LanguageController.Instance.GetText("screen.bitcoin.send.fee.too.low"), null, SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE);
+					ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.warning"), LanguageController.Instance.GetText("screen.bitcoin.send.fee.too.low"), null, SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE);
 				}
 				else
 				{					
 					if (m_amountInBitcoins == 0) 
 					{
-						ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), LanguageController.Instance.GetText("screen.bitcoin.send.amount.no.zero"), null, "");						
+						ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), LanguageController.Instance.GetText("screen.bitcoin.send.amount.no.zero"), null, "");						
 					}
 					else
 					{
 						decimal amountTotalUSD = m_amountInBitcoins * BitCoinController.Instance.CurrenciesExchange[BitCoinController.CODE_DOLLAR];
 						if (amountTotalUSD < 1m)
 						{
-							ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_CONFIRMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.warning"), LanguageController.Instance.GetText("screen.bitcoin.send.amount.too.low"), null, SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE);
+							ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.warning"), LanguageController.Instance.GetText("screen.bitcoin.send.amount.too.low"), null, SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE);
 						}
 						else
 						{
@@ -426,7 +426,7 @@ namespace YourBitcoinManager
 		 */
 		private void SummaryTransactionForLastConfirmation()
 		{
-			ScreenBitcoinController.Instance.CreateNewScreen(ScreenTransactionSummaryView.SCREEN_NAME, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, false, m_amountInBitcoins, m_feeInBitcoins, m_currencySelected, BitCoinController.Instance.AddressToLabel(m_publicAddressToSend), m_messageInput.text);
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenTransactionSummaryView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, m_amountInBitcoins, m_feeInBitcoins, m_currencySelected, BitCoinController.Instance.AddressToLabel(m_publicAddressToSend), m_messageInput.text);
 		}
 
 		// -------------------------------------------
@@ -450,13 +450,13 @@ namespace YourBitcoinManager
 		{
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_DONE)
 			{
-				BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinInformationView.EVENT_SCREENINFORMATION_FORCE_DESTRUCTION_POPUP);
+				UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
 				if ((bool)_list[0])
 				{
 					HasChanged = false;
 					BitCoinController.Instance.RefreshBalancePrivateKeys();
 					string transactionID = (string)_list[1];
-					ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.transaction.success"), null, "");
+					ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.transaction.success"), null, "");
 				}
 				else
 				{								
@@ -465,7 +465,7 @@ namespace YourBitcoinManager
 					{
 						messageError = (string)_list[1];
 					}
-					ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), messageError, null, "");
+					ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), messageError, null, "");
 				}
 			}
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_SELECTED_PUBLIC_KEY)
@@ -483,20 +483,20 @@ namespace YourBitcoinManager
 
 		// -------------------------------------------
 		/* 
-		 * OnBasicEvent
+		 * OnUIEvent
 		 */
-		private void OnBitcoinManagerEvent(string _nameEvent, params object[] _list)
+		protected void OnUIEvent(string _nameEvent, params object[] _list)
 		{
 			if (_nameEvent == EVENT_SCREENBITCOINSEND_USER_CONFIRMED_RUN_TRANSACTION)
 			{
 				ScreenBitcoinController.Instance.DestroyScreensOverlay();
-				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_WAIT, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
+				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
 				Invoke("OnExecuteRealPayment", 0.1f);
 			}
 
 			if (!this.gameObject.activeSelf) return;
 
-			if (_nameEvent == ScreenBitcoinInformationView.EVENT_SCREENINFORMATION_CONFIRMATION_POPUP)
+			if (_nameEvent == ScreenController.EVENT_CONFIRMATION_POPUP)
 			{
 				string subEvent = (string)_list[2];
 				if (subEvent == SUB_EVENT_SCREENBITCOIN_CONFIRMATION_EXIT_TRANSACTION)
@@ -514,7 +514,7 @@ namespace YourBitcoinManager
 					}
 				}
 			}
-			if (_nameEvent == ScreenBitcoinController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
 			{
 				OnBackButton();
 			}

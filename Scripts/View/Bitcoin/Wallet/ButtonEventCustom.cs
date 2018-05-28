@@ -5,6 +5,7 @@ using System.Text;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using YourCommonTools;
 
 namespace YourBitcoinManager
 {
@@ -24,7 +25,7 @@ namespace YourBitcoinManager
 		{
 			base.OnPointerDown(eventData);
 
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(EVENT_BUTTON_CUSTOM_PRESSED_DOWN, this.gameObject);
+			UIEventController.Instance.DispatchUIEvent(EVENT_BUTTON_CUSTOM_PRESSED_DOWN, this.gameObject);
 		}
 
 
@@ -32,7 +33,7 @@ namespace YourBitcoinManager
 		{
 			base.OnPointerUp(eventData);
 
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(EVENT_BUTTON_CUSTOM_RELEASE_UP, this.gameObject);
+			UIEventController.Instance.DispatchUIEvent(EVENT_BUTTON_CUSTOM_RELEASE_UP, this.gameObject);
 		}
 
 	}

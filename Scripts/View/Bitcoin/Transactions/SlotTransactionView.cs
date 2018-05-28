@@ -104,7 +104,7 @@ namespace YourBitcoinManager
 
 			UpdateCurrency();
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent += new BitcoinManagerEventHandler(OnBasicEvent);
+			BitcoinEventController.Instance.BitcoinEvent += new BitcoinEventHandler(OnBitcoinEvent);
 		}
 
 		// -------------------------------------------
@@ -113,7 +113,7 @@ namespace YourBitcoinManager
 		 */
 		public bool Destroy()
 		{
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent -= OnBasicEvent;
+			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
 			GameObject.Destroy(this.gameObject);
 
 			return true;
@@ -149,14 +149,14 @@ namespace YourBitcoinManager
 		public override void OnPointerClick(PointerEventData eventData)
 		{
 			base.OnPointerClick(eventData);
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(EVENT_SLOT_TRANSACTION_SELECTED, m_id);
+			UIEventController.Instance.DispatchUIEvent(EVENT_SLOT_TRANSACTION_SELECTED, m_id);
 		}
 
 		// -------------------------------------------
 		/* 
-		 * OnBasicEvent
+		 * OnBitcoinEvent
 		 */
-		private void OnBasicEvent(string _nameEvent, params object[] _list)
+		private void OnBitcoinEvent(string _nameEvent, params object[] _list)
 		{
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_CURRENCY_CHANGED)
 			{

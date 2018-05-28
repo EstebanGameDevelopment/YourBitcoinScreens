@@ -17,7 +17,7 @@ namespace YourBitcoinManager
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class ScreenTransactionSummaryView : ScreenBaseView, IBasicScreenView
+	public class ScreenTransactionSummaryView : ScreenBaseView, IBasicView
 	{
 		public const string SCREEN_NAME = "SCREEN_TRANSACTION_SUMMARY";
 
@@ -40,7 +40,7 @@ namespace YourBitcoinManager
 		/* 
 		 * Constructor
 		 */
-		public void Initialize(params object[] _list)
+		public override void Initialize(params object[] _list)
 		{
 			decimal amount = (decimal)_list[0];
 			decimal fee = (decimal)_list[1];
@@ -86,7 +86,7 @@ namespace YourBitcoinManager
 				}
 			}
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent += new BitcoinManagerEventHandler(OnBitcoinManagerEvent);
+			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
 		}
 
 		// -------------------------------------------
@@ -97,8 +97,8 @@ namespace YourBitcoinManager
 		{
 			if (base.Destroy()) return true;
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent -= OnBitcoinManagerEvent;
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinController.EVENT_SCREENMANAGER_DESTROY_OVERLAY_SCREEN, this.gameObject);
+			UIEventController.Instance.UIEvent -= OnMenuEvent;
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_OVERLAY_SCREEN, this.gameObject);
 
 			return false;
 		}
@@ -109,7 +109,7 @@ namespace YourBitcoinManager
 		 */
 		private void OnConfirmationTransaction()
 		{
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinSendView.EVENT_SCREENBITCOINSEND_USER_CONFIRMED_RUN_TRANSACTION);
+			UIEventController.Instance.DispatchUIEvent(ScreenBitcoinSendView.EVENT_SCREENBITCOINSEND_USER_CONFIRMED_RUN_TRANSACTION);
 			Destroy();
 		}
 
@@ -126,9 +126,11 @@ namespace YourBitcoinManager
 		/* 
 		 * OnBasicEvent
 		 */
-		private void OnBitcoinManagerEvent(string _nameEvent, params object[] _list)
+		protected override void OnMenuEvent(string _nameEvent, params object[] _list)
 		{
-			if (_nameEvent == ScreenBitcoinController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+			base.OnMenuEvent(_nameEvent, _list);
+
+			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
 			{
 				OnCancelTransaction();
 			}

@@ -17,7 +17,7 @@ namespace YourBitcoinManager
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class ScreenBitcoinAddFundsKeyView : ScreenBaseView, IBasicScreenView
+	public class ScreenBitcoinAddFundsKeyView : ScreenBaseView, IBasicView
 	{
 		public const string SCREEN_NAME = "SCREEN_ADD_FUNDS";
 
@@ -57,7 +57,7 @@ namespace YourBitcoinManager
 			m_container.Find("PublicKeyLabel").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.bitcoin.copy.paste.public.address");
 			m_container.Find("PublicKeyInput").GetComponent<InputField>().text = BitCoinController.Instance.CurrentPublicKey;
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent += new BitcoinManagerEventHandler(OnBasicEvent);
+			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
 
 			m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + BitCoinController.Instance.Network.ToString();
 		}
@@ -70,8 +70,8 @@ namespace YourBitcoinManager
 		{
 			if (base.Destroy()) return true;
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent -= OnBasicEvent;
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinController.EVENT_SCREENMANAGER_DESTROY_OVERLAY_SCREEN, this.gameObject);
+			UIEventController.Instance.UIEvent -= OnMenuEvent;
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_OVERLAY_SCREEN, this.gameObject);
 
 			return false;
 		}
@@ -95,7 +95,7 @@ namespace YourBitcoinManager
 			Utilities.Clipboard = m_publicKey;
 			string title = LanguageController.Instance.GetText("message.info");
 			string description = LanguageController.Instance.GetText("screen.bitcoin.copied.public.key.clipboard");
-			ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, title, description, null, SUBEVENT_CONFIRMATION_OPEN_URL_TO_ADD_BITCOINS);
+			ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, title, description, null, SUBEVENT_CONFIRMATION_OPEN_URL_TO_ADD_BITCOINS);
 		}
 
 		// -------------------------------------------
@@ -116,18 +116,18 @@ namespace YourBitcoinManager
 				pages.Add(new PageInformation(title, LanguageController.Instance.GetText("screen.bitcoin.choose.your.own.method.bitcoins.to.paypal.2"), null, ""));
 				pages.Add(new PageInformation(title, LanguageController.Instance.GetText("screen.bitcoin.choose.your.own.method.bitcoins.to.paypal.3"), null, SUBEVENT_CONFIRMATION_OPEN_URL_BITCOINS_TO_PAYPAL));
 			}
-			ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, pages);			
+			ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, pages);			
 		}
 
 		// -------------------------------------------
 		/* 
-		 * OnBasicEvent
+		 * OnMenuEvent
 		 */
-		private void OnBasicEvent(string _nameEvent, params object[] _list)
+		protected override void OnMenuEvent(string _nameEvent, params object[] _list)
 		{
 			if (!this.gameObject.activeSelf) return;
 
-			if (_nameEvent == ScreenBitcoinInformationView.EVENT_SCREENINFORMATION_CONFIRMATION_POPUP)
+			if (_nameEvent == ScreenController.EVENT_CONFIRMATION_POPUP)
 			{
 				string subEvent = (string)_list[2];
 				if (subEvent == SUBEVENT_CONFIRMATION_OPEN_URL_TO_ADD_BITCOINS)
@@ -146,7 +146,7 @@ namespace YourBitcoinManager
 					Application.OpenURL("https://www.yourvrexperience.com/?page_id=4247");
 				}				
 			}
-			if (_nameEvent == ScreenBitcoinController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
 			{
 				OnBackButton();
 			}

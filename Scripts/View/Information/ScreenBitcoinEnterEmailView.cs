@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using YourCommonTools;
 
@@ -17,7 +12,7 @@ namespace YourBitcoinManager
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class ScreenBitcoinEnterEmailView : ScreenBaseView, IBasicScreenView
+	public class ScreenBitcoinEnterEmailView : ScreenBaseView, IBasicView
 	{
 		public const string SCREEN_NAME = "SCREEN_ENTER_EMAIL";
 
@@ -46,7 +41,7 @@ namespace YourBitcoinManager
 			m_container.Find("Button_Save").GetComponent<Button>().onClick.AddListener(OnConfirmEmail);
 			m_container.Find("Button_Cancel").GetComponent<Button>().onClick.AddListener(OnCancelEmail);
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent += new BitcoinManagerEventHandler(OnBasicEvent);
+			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
 		}
 
 		// -------------------------------------------
@@ -56,9 +51,9 @@ namespace YourBitcoinManager
 		public override bool Destroy()
 		{
 			if (base.Destroy()) return true;
-			
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent -= OnBasicEvent;
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinController.EVENT_SCREENMANAGER_DESTROY_OVERLAY_SCREEN, this.gameObject);
+
+			UIEventController.Instance.UIEvent -= OnMenuEvent;
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_OVERLAY_SCREEN, this.gameObject);
 
 			return false;
 		}
@@ -75,11 +70,11 @@ namespace YourBitcoinManager
 			{
 				string titleInfoError = LanguageController.Instance.GetText("message.error");
 				string descriptionInfoError = LanguageController.Instance.GetText("screen.enter.email.empty.data");
-				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenBitcoinInformationView.SCREEN_INFORMATION, TypePreviousActionEnum.KEEP_CURRENT_SCREEN, titleInfoError, descriptionInfoError, null, "");
+				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, titleInfoError, descriptionInfoError, null, "");
 			}
 			else
 			{
-				BitcoinManagerEventController.Instance.DispatchBasicEvent(EVENT_SCREENENTEREMAIL_CONFIRMATION, email);
+				UIEventController.Instance.DispatchUIEvent(EVENT_SCREENENTEREMAIL_CONFIRMATION, email);
 			}
 			Destroy();
 		}
@@ -97,9 +92,9 @@ namespace YourBitcoinManager
 		/* 
 		 * OnBasicEvent
 		 */
-		private void OnBasicEvent(string _nameEvent, params object[] _list)
+		private void OnMenuEvent(string _nameEvent, params object[] _list)
 		{
-			if (_nameEvent == ScreenBitcoinController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
 			{
 				OnCancelEmail();
 			}

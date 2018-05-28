@@ -17,7 +17,7 @@ namespace YourBitcoinManager
 	 * 
 	 * @author Esteban Gallardo
 	 */
-	public class ScreenBitcoinTransactionsView : ScreenBaseView, IBasicScreenView
+	public class ScreenBitcoinTransactionsView : ScreenBaseView, IBasicView
 	{
 		public const string SCREEN_NAME = "SCREEN_TRANSACTIONS";
 
@@ -50,7 +50,7 @@ namespace YourBitcoinManager
 		/* 
 		 * Constructor
 		 */
-		public void Initialize(params object[] _list)
+		public  override void Initialize(params object[] _list)
 		{
 			m_transactionConsultType = (int)_list[0];
 
@@ -80,9 +80,9 @@ namespace YourBitcoinManager
 			if (indexCurrentCurrency != -1)
 			{
 				m_currencies.value = indexCurrentCurrency;
-			}			
+			}
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent += new BitcoinManagerEventHandler(OnBasicEvent);
+			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
 			BitcoinEventController.Instance.BitcoinEvent += new BitcoinEventHandler(OnBitcoinEvent);
 
 			m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + BitCoinController.Instance.Network.ToString();
@@ -107,10 +107,10 @@ namespace YourBitcoinManager
 			if (m_listKeys!=null) m_listKeys.GetComponent<SlotManagerView>().Destroy();
 			m_listKeys = null;
 
-			BitcoinManagerEventController.Instance.BitcoinManagerEvent -= OnBasicEvent;
+			UIEventController.Instance.UIEvent -= OnMenuEvent;
 			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
 
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(ScreenBitcoinController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
 
 			return false;
 		}
@@ -122,7 +122,7 @@ namespace YourBitcoinManager
 		private void OnCurrencyChanged(int _index)
 		{
 			BitCoinController.Instance.CurrentCurrency = m_currencies.options[_index].text;
-			BitcoinManagerEventController.Instance.DispatchBasicEvent(BitCoinController.EVENT_BITCOINCONTROLLER_CURRENCY_CHANGED);
+			BitcoinEventController.Instance.DispatchBitcoinEvent(BitCoinController.EVENT_BITCOINCONTROLLER_CURRENCY_CHANGED);
 		}
 
 		// -------------------------------------------
@@ -239,13 +239,13 @@ namespace YourBitcoinManager
 
 		// -------------------------------------------
 		/* 
-		 * OnBasicEvent
+		 * OnMenuEvent
 		 */
-		private void OnBasicEvent(string _nameEvent, params object[] _list)
+		protected override void OnMenuEvent(string _nameEvent, params object[] _list)
 		{
 			if (!this.gameObject.activeSelf) return;
 
-			if (_nameEvent == ScreenBitcoinController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
 			{
 				Destroy();
 			}
