@@ -29,6 +29,7 @@ namespace YourBitcoinManager
 		// ----------------------------------------------	
 		private const string SUB_EVENT_SCREENBITCOIN_CONFIRMATION_EXIT_TRANSACTION	= "SUB_EVENT_SCREENBITCOIN_CONFIRMATION_EXIT_TRANSACTION";
 		private const string SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE			= "SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE";
+		private const string SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE		= "SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE";
 
 		// ----------------------------------------------
 		// CONSTANTS
@@ -60,6 +61,8 @@ namespace YourBitcoinManager
 		private InputField m_messageInput;
 
 		private bool m_hasChanged = false;
+		private bool m_transactionSuccess = false;
+		private string m_transactionIDHex = "";
 
 		private int m_idUser = -1;
 		private string m_passwordUser = "";
@@ -215,6 +218,7 @@ namespace YourBitcoinManager
 			UIEventController.Instance.UIEvent -= OnUIEvent;
 			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
 			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+			GameObject.Destroy(this.gameObject);
 
 			return false;
 		}
@@ -451,12 +455,14 @@ namespace YourBitcoinManager
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_DONE)
 			{
 				UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
+				m_transactionSuccess = (bool)_list[0];
+				m_transactionIDHex = "";
 				if ((bool)_list[0])
 				{
 					HasChanged = false;
 					BitCoinController.Instance.RefreshBalancePrivateKeys();
-					string transactionID = (string)_list[1];
-					ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.transaction.success"), null, "");
+					m_transactionIDHex = (string)_list[1];					 
+					ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.transaction.success"), null, SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE);
 				}
 				else
 				{								
@@ -512,6 +518,10 @@ namespace YourBitcoinManager
 					{
 						SummaryTransactionForLastConfirmation();
 					}
+				}
+				if (subEvent == SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE)
+				{
+					BitcoinEventController.Instance.DispatchBitcoinEvent(BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_USER_ACKNOWLEDGE, m_transactionSuccess, m_transactionIDHex);					
 				}
 			}
 			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)

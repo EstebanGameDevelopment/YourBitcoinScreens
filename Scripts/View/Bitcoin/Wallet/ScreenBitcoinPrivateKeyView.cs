@@ -200,6 +200,7 @@ namespace YourBitcoinManager
 			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
 
 			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+			GameObject.Destroy(this.gameObject);
 
 			return false;
 		}
