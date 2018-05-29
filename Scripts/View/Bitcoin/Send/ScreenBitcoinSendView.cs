@@ -350,7 +350,9 @@ namespace YourBitcoinManager
 		 */
 		private void OnSelectAddress()
 		{
+#if ENABLE_FULL_WALLET
 			ScreenBitcoinController.Instance.CreateNewScreen(ScreenSelectAddressFromView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false);
+#endif
 		}
 
 		// -------------------------------------------
@@ -359,7 +361,9 @@ namespace YourBitcoinManager
 		 */
 		private void OnSaveAddress()
 		{
+#if ENABLE_FULL_WALLET
 			ScreenBitcoinController.Instance.CreateNewScreen(ScreenEnterEmailView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, LanguageController.Instance.GetText("screen.enter.new.label.address"));
+#endif
 		}
 
 		// -------------------------------------------

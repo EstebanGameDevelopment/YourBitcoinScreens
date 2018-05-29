@@ -104,13 +104,14 @@ namespace YourBitcoinManager
 		{
 			if (base.Destroy()) return true;
 
-			if (m_listKeys!=null) m_listKeys.GetComponent<SlotManagerView>().Destroy();
-			m_listKeys = null;
-
 			UIEventController.Instance.UIEvent -= OnMenuEvent;
 			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
 
+			if (m_listKeys!=null) m_listKeys.GetComponent<SlotManagerView>().Destroy();
+			m_listKeys = null;
+
 			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
+			GameObject.Destroy(this.gameObject);
 
 			return false;
 		}
