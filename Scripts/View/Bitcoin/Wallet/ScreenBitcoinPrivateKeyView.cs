@@ -745,7 +745,7 @@ namespace YourBitcoinManager
 			}
 			if (_nameEvent == EVENT_SCREENPROFILE_LOAD_SCREEN_EXCHANGE_TABLES_INFO)
 			{
-				CommController.Instance.GetBitcoinExchangeRatesTable();
+				CommsHTTPConstants.GetBitcoinExchangeRatesTable();
 			}
 			if (_nameEvent == EVENT_SCREENPROFILE_LOAD_CHECKING_KEY_PROCESS)
 			{
