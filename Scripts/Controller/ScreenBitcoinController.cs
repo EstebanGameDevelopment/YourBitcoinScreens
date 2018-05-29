@@ -107,7 +107,7 @@ namespace YourBitcoinManager
 		/* 
 		 * InitializeBitcoin
 		 */
-		public void InitializeBitcoin(string _screenToLoad = "", params object[] _optionalParams)
+		public virtual void InitializeBitcoin(string _screenToLoad = "", params object[] _optionalParams)
 		{
 			m_screenToLoad = _screenToLoad;
 			m_optionalParams = _optionalParams;
@@ -156,7 +156,7 @@ namespace YourBitcoinManager
 		/* 
 		 * Manager of global events
 		 */
-		private void OnBitcoinEvent(string _nameEvent, params object[] _list)
+		protected virtual void OnBitcoinEvent(string _nameEvent, params object[] _list)
 		{
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_ALL_DATA_COLLECTED)
 			{

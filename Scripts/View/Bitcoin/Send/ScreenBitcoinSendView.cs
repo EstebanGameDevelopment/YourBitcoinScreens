@@ -45,6 +45,7 @@ namespace YourBitcoinManager
 		private string m_publicAddressToSend;
 		private bool m_validPublicAddressToSend = false;
 		private GameObject m_validAddress;
+		private GameObject m_saveAddress;
 
 		private InputField m_amountInput;
 		private string m_amountInCurrency = "0";
@@ -133,15 +134,24 @@ namespace YourBitcoinManager
 			UpdateWalletButtonInfo();
 
 			// PUBLIC KEY TO SEND
+			m_saveAddress = m_container.Find("Address/SaveAddress").gameObject;
+			m_saveAddress.GetComponent<Button>().onClick.AddListener(OnSaveAddress);
+			m_saveAddress.SetActive(false);
+
 			m_validAddress = m_container.Find("Address/ValidAddress").gameObject;
 			m_validAddress.GetComponent<Button>().onClick.AddListener(OnAddressValid);
 			m_validAddress.SetActive(false);
 
 			m_container.Find("Address/Label").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.send.write.destination.address");
 			m_publicAddressInput = m_container.Find("Address/PublicKey").GetComponent<InputField>();
-			m_publicAddressInput.onValueChanged.AddListener(OnValuePublicKeyChanged);
+			m_publicAddressInput.onValueChanged.AddListener(OnValuePublicKeyChanged);			
+			m_container.Find("Address/SelectAddress").GetComponent<Button>().onClick.AddListener(OnSelectAddress);
+			m_container.Find("Address/SelectAddress/Text").GetComponent<Text>().text = LanguageController.Instance.GetText("message.addresses");
+#if !ENABLE_FULL_WALLET
+			m_container.Find("Address/SelectAddress").gameObject.SetActive(false);
+#endif
 			m_publicAddressInput.text = publicKeyAddress;
-			
+
 			// AMOUNT
 			m_container.Find("Amount/Label").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.send.amount.to.send");
 			m_amountInput = m_container.Find("Amount/Value").GetComponent<InputField>();
@@ -233,6 +243,17 @@ namespace YourBitcoinManager
 			{
 				m_publicAddressToSend = m_publicAddressInput.text;
 				ValidPublicKeyToSend = BitCoinController.Instance.ValidatePublicKey(m_publicAddressToSend);
+#if ENABLE_FULL_WALLET
+				bool enableButtonSaveAddress = true;
+				if (BitCoinController.Instance.ContainsAddress(m_publicAddressToSend))
+				{
+					enableButtonSaveAddress = false;
+				}
+				if (enableButtonSaveAddress)
+				{
+					m_saveAddress.SetActive(true);
+				}
+#endif
 
 				m_validAddress.SetActive(true);
 				m_validAddress.transform.Find("IconValid").gameObject.SetActive(m_validPublicAddressToSend);
@@ -315,7 +336,30 @@ namespace YourBitcoinManager
 		 */
 		public void OnRealCheckWallet()
 		{
+#if ENABLE_FULL_WALLET
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, true);
+#else
 			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, true, BitCoinController.Instance.CurrentPublicKey);
+#endif
+		}
+
+
+		// -------------------------------------------
+		/* 
+		 * OnSelectAddress
+		 */
+		private void OnSelectAddress()
+		{
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenSelectAddressFromView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false);
+		}
+
+		// -------------------------------------------
+		/* 
+		 * OnSaveAddress
+		 */
+		private void OnSaveAddress()
+		{
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenEnterEmailView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, LanguageController.Instance.GetText("screen.enter.new.label.address"));
 		}
 
 		// -------------------------------------------
@@ -484,6 +528,13 @@ namespace YourBitcoinManager
 #if DEBUG_MODE_DISPLAY_LOG
 				Debug.Log("EVENT_BITCOINCONTROLLER_SELECTED_PUBLIC_KEY::PUBLIC KEY ADDRESS=" + publicKeyAddress);
 #endif
+
+				string labelAddress = BitCoinController.Instance.AddressToLabel(publicKeyAddress);
+				if ((labelAddress.Length > 0) && (labelAddress != publicKeyAddress))
+				{
+					m_container.Find("Address/Label").GetComponent<Text>().text = labelAddress;
+					m_container.Find("Address/Label").GetComponent<Text>().color = Color.red;
+				}
 			}
 		}
 
@@ -493,6 +544,20 @@ namespace YourBitcoinManager
 		 */
 		protected void OnUIEvent(string _nameEvent, params object[] _list)
 		{
+#if ENABLE_FULL_WALLET
+			if (_nameEvent == ScreenEnterEmailView.EVENT_SCREENENTEREMAIL_CONFIRMATION)
+			{
+				string label = (string)_list[0];
+				BitCoinController.Instance.SaveAddresses(m_publicAddressToSend, label);
+				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.address.saved"), null, "");
+				m_saveAddress.SetActive(false);
+				if (label.Length > 0)
+				{
+					m_container.Find("Address/Label").GetComponent<Text>().text = label;
+					m_container.Find("Address/Label").GetComponent<Text>().color = Color.red;
+				}
+			}
+#endif
 			if (_nameEvent == EVENT_SCREENBITCOINSEND_USER_CONFIRMED_RUN_TRANSACTION)
 			{
 				ScreenBitcoinController.Instance.DestroyScreensOverlay();

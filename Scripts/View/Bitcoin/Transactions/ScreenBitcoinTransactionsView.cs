@@ -50,7 +50,7 @@ namespace YourBitcoinManager
 		/* 
 		 * Constructor
 		 */
-		public  override void Initialize(params object[] _list)
+		public override void Initialize(params object[] _list)
 		{
 			m_transactionConsultType = (int)_list[0];
 

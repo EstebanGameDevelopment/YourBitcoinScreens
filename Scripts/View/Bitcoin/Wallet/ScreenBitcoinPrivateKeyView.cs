@@ -69,18 +69,26 @@ namespace YourBitcoinManager
 		private decimal m_balanceValue = -1m;
 		private GameObject m_buttonBalance;
 		private GameObject m_createNewWallet;
-		
+		private GameObject m_exchangeTable;
+
 		private bool m_hasChanged = false;
 		private GameObject m_buttonSave;
+		private GameObject m_buttonDelete;
 
 		private bool m_considerEnableEdition = false;
 		private bool m_enableEdition = true;
+		private bool m_enableDelete = false;
 		private string m_currentPublicKey = "";
 
 		public bool HasChanged
 		{
 			get { return m_hasChanged; }
-			set { m_hasChanged = value; }
+			set {
+				m_hasChanged = value;
+#if ENABLE_FULL_WALLET
+				m_buttonSave.SetActive(m_hasChanged);
+#endif
+			}
 		}
 		public bool EnableEdition
 		{
@@ -104,15 +112,29 @@ namespace YourBitcoinManager
 		 */
 		public override void Initialize(params object[] _list)
 		{
+#if ENABLE_FULL_WALLET
+			if ((_list != null) && (_list.Length > 0))
+			{
+				m_enableEdition = (bool)_list[0];
+				m_enableDelete = true;
+			}
+			else
+			{
+				m_enableEdition = true;
+				m_enableDelete = false;
+			}
+#else
 			if (_list != null)
 			{
 				if (_list.Length > 0)
 				{
 					m_currentPublicKey = (string)_list[0];
-					m_considerEnableEdition = true;					
-				}				
+					m_considerEnableEdition = true;
+				}
 			}
 			UpdateEnableEdition();
+			m_enableDelete = false;
+#endif
 
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");
@@ -158,6 +180,11 @@ namespace YourBitcoinManager
 			m_buttonBalance.GetComponent<Button>().onClick.AddListener(OnAddFunds);
 			m_buttonBalance.SetActive(false);
 
+			m_exchangeTable = m_container.Find("ExchangeTable").gameObject;
+			m_exchangeTable.transform.Find("Text").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.bitcoin.exchange.information");
+			m_exchangeTable.GetComponent<Button>().onClick.AddListener(OnExchangeTableInfo);
+			m_exchangeTable.SetActive(false);
+
 			m_container.Find("Button_Back").GetComponent<Button>().onClick.AddListener(OnBackButton);
 
 			m_buttonSave = m_container.Find("Button_Save").gameObject;
@@ -165,6 +192,9 @@ namespace YourBitcoinManager
 			m_buttonSave.SetActive(false);
 			HasChanged = false;
 
+			m_buttonDelete = m_container.Find("Button_Delete").gameObject;
+			m_buttonDelete.GetComponent<Button>().onClick.AddListener(OnDeleteButton);
+			m_buttonDelete.SetActive(false);
 
 			m_createNewWallet = m_container.Find("CreatePrivateKey").gameObject;
 			m_createNewWallet.GetComponent<Button>().onClick.AddListener(OnCreateNewWallet);
@@ -251,6 +281,7 @@ namespace YourBitcoinManager
 		 */
 		private void UpdateEnableEdition()
 		{
+#if !ENABLE_FULL_WALLET
 			if (m_considerEnableEdition)
 			{
 				if ((m_currentPublicKey.Length > 0)
@@ -263,6 +294,7 @@ namespace YourBitcoinManager
 					EnableEdition = true;
 				}
 			}
+#endif
 		}
 		
 		// -------------------------------------------
@@ -510,7 +542,7 @@ namespace YourBitcoinManager
 			else
 			{
 				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), LanguageController.Instance.GetText("message.location.key.is.not.valid.blockchain"), null, "");
-			}
+			}			
 		}
 
 		// -------------------------------------------
@@ -575,6 +607,10 @@ namespace YourBitcoinManager
 				m_greenLight.SetActive(true);
 				m_emailPrivateKey.SetActive(true);
 				m_approveMessage.text = LanguageController.Instance.GetText("screen.location.key.valid");
+#if ENABLE_FULL_WALLET
+				SetNewPrivateKey(_privateKey);
+#else
+
 				if (!m_considerEnableEdition)
 				{
 					SetNewPrivateKey(_privateKey);
@@ -602,6 +638,7 @@ namespace YourBitcoinManager
 						}
 					}
 				}
+#endif
 			}
 			else
 			{
@@ -611,8 +648,20 @@ namespace YourBitcoinManager
 			if (!m_hasBeenInitialized)
 			{
 				m_hasBeenInitialized = true;
+#if ENABLE_FULL_WALLET
+				if (m_enableEdition)
+				{
+					m_labelKey.onValueChanged.AddListener(OnValueLabelKeyChanged);
+					m_labelKey.onEndEdit.AddListener(OnEditedLabelKeyChanged);
+				}
+				else
+				{
+					m_labelKey.interactable = false;
+				}
+#else
 				m_labelKey.onValueChanged.AddListener(OnValueLabelKeyChanged);
 				m_labelKey.onEndEdit.AddListener(OnEditedLabelKeyChanged);
+#endif
 			}
 		}
 
@@ -632,10 +681,34 @@ namespace YourBitcoinManager
 
 		// -------------------------------------------
 		/* 
+		 * OnExchangeTableInfo
+		 */
+		private void OnExchangeTableInfo()
+		{
+			MenusScreenController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
+			if (m_balanceValue > 0)
+			{
+				UIEventController.Instance.DelayUIEvent(EVENT_SCREENPROFILE_LOAD_SCREEN_EXCHANGE_TABLES_INFO, 0.1f);
+			}
+			else
+			{
+				UIEventController.Instance.DelayUIEvent(EVENT_SCREENPROFILE_LOAD_CHECKING_KEY_PROCESS, 0.1f);
+			}
+		}
+
+		// -------------------------------------------
+		/* 
 		 * OnBitcoinEvent
 		 */
 		private void OnBitcoinEvent(string _nameEvent, params object[] _list)
 		{
+			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_JSON_EXCHANGE_TABLE)
+			{
+#if ENABLE_FULL_WALLET
+				UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
+				MenusScreenController.MainInstance.CreateNewScreen(ScreenExchangeTableView.SCREEN_EXCHANGE_TABLE, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, m_balanceValue, (string)_list[0]);
+#endif
+			}
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_BALANCE_WALLET)
 			{
 #if DEBUG_MODE_DISPLAY_LOG
@@ -646,6 +719,16 @@ namespace YourBitcoinManager
 				m_outputTransactionHistory.SetActive(true);
 				m_inputTransactionHistory.SetActive(true);
 				m_createNewWallet.SetActive(false);
+#if ENABLE_FULL_WALLET
+				m_exchangeTable.SetActive(true);
+				if (m_enableEdition)
+				{
+					if (m_enableDelete)
+					{
+						m_buttonDelete.SetActive(true);
+					}
+				}
+#endif
 				float balanceInCurrency = (float)(m_balanceValue * BitCoinController.Instance.GetCurrentExchange());
 				m_balance.text = m_balanceValue.ToString() + " BTC" + " /\n" + balanceInCurrency + " " + BitCoinController.Instance.CurrentCurrency;
 				m_requestCheckValidKey = false;
@@ -728,20 +811,6 @@ namespace YourBitcoinManager
 			{
 				m_completeKey.contentType = UnityEngine.UI.InputField.ContentType.Password;
 				m_completeKey.ForceLabelUpdate();
-			}
-			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_BALANCE_WALLET)
-			{
-#if DEBUG_MODE_DISPLAY_LOG
-				Debug.Log("EVENT_BITCOINCONTROLLER_BALANCE_WALLET::m_balanceValue=" + m_balanceValue);
-#endif
-				m_balanceValue = (decimal)((float)_list[0]);
-				m_buttonBalance.SetActive(true);
-				m_outputTransactionHistory.SetActive(true);
-				m_inputTransactionHistory.SetActive(true);
-				m_createNewWallet.SetActive(false);
-				float balanceInCurrency = (float)(m_balanceValue * BitCoinController.Instance.CurrenciesExchange[BitCoinController.Instance.CurrentCurrency]);
-				m_balance.text = m_balanceValue.ToString() + " BTC" + " /\n" + balanceInCurrency + " " + BitCoinController.Instance.CurrentCurrency;
-				m_requestCheckValidKey = false;
 			}
 			if (_nameEvent == EVENT_SCREENPROFILE_LOAD_SCREEN_EXCHANGE_TABLES_INFO)
 			{
