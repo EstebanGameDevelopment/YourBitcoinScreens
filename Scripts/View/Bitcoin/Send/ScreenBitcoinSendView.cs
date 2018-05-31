@@ -107,16 +107,19 @@ namespace YourBitcoinManager
 
 			if (_list != null)
 			{
-				if (_list.Length > 2)
+				if (_list.Length > 0)
 				{
-					publicKeyAddress = (string)_list[0];
-					amountTransaction = (string)_list[1];
-					BitCoinController.Instance.CurrentCurrency = (string)_list[2];
-					messageTransaction = LanguageController.Instance.GetText("screen.send.explain.please");
-					if (_list.Length > 3)
+					publicKeyAddress = (string)_list[0];					
+					if (_list.Length > 2)
 					{
-						messageTransaction = (string)_list[3];
-					}
+						amountTransaction = (string)_list[1];
+						BitCoinController.Instance.CurrentCurrency = (string)_list[2];
+						if (_list.Length > 3)
+						{
+							messageTransaction = (string)_list[3];
+						}
+					}					
+					messageTransaction = LanguageController.Instance.GetText("screen.send.explain.please");
 				}
 			}
 
@@ -194,7 +197,7 @@ namespace YourBitcoinManager
 			m_messageInput = m_container.Find("Pay/Message").GetComponent<InputField>();
 			m_messageInput.text = messageTransaction;
 			m_container.Find("Pay/ExecutePayment").GetComponent<Button>().onClick.AddListener(OnExecutePayment);
-
+			
 			UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);			
 			BitcoinEventController.Instance.BitcoinEvent += new BitcoinEventHandler(OnBitcoinEvent);
 
@@ -228,7 +231,6 @@ namespace YourBitcoinManager
 			UIEventController.Instance.UIEvent -= OnUIEvent;
 			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
 			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
-			GameObject.Destroy(this.gameObject);
 
 			return false;
 		}
@@ -336,6 +338,7 @@ namespace YourBitcoinManager
 		 */
 		public void OnRealCheckWallet()
 		{
+			UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
 #if ENABLE_FULL_WALLET
 			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, true);
 #else

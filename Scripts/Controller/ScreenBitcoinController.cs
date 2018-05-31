@@ -40,6 +40,7 @@ namespace YourBitcoinManager
 				if (!_instance)
 				{
 					_instance = GameObject.FindObjectOfType(typeof(ScreenBitcoinController)) as ScreenBitcoinController;
+					DontDestroyOnLoad(_instance);
 				}
 				return _instance;
 			}
@@ -165,10 +166,17 @@ namespace YourBitcoinManager
 					m_hasBeenInitialized = true;
 					BitCoinController.Instance.LoadPrivateKeys(true);
 
-					if (m_screenToLoad.Length > 0)
+					if (BitCoinController.Instance.CurrentPrivateKey.Length == 0)
 					{
-						CreateNewScreen(m_screenToLoad, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, m_optionalParams);
-					}					
+						CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true);
+					}
+					else
+					{
+						if (m_screenToLoad.Length > 0)
+						{
+							CreateNewScreen(m_screenToLoad, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, m_optionalParams);
+						}
+					}
 				}
 				BitcoinEventController.Instance.DispatchBitcoinEvent(BitCoinController.EVENT_BITCOINCONTROLLER_ALL_DATA_INITIALIZED);
 			}
