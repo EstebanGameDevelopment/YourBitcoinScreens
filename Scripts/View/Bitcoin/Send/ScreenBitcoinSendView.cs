@@ -119,7 +119,6 @@ namespace YourBitcoinManager
 							messageTransaction = (string)_list[3];
 						}
 					}					
-					messageTransaction = LanguageController.Instance.GetText("screen.send.explain.please");
 				}
 			}
 
