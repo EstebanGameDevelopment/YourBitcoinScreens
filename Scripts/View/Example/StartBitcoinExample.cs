@@ -5,7 +5,7 @@ using YourBitcoinManager;
 
 public class StartBitcoinExample : MonoBehaviour {
 
-	private bool m_buttonsVisible = true;
+	private bool m_hasBeenInitializedBitcoin = false;
 
 	// -------------------------------------------
 	/* 
@@ -13,22 +13,28 @@ public class StartBitcoinExample : MonoBehaviour {
 	*/
 	void OnGUI()
 	{
-		if (m_buttonsVisible)
+		if (m_hasBeenInitializedBitcoin)
 		{
-			float fontSize = 1.2f * 15;
-			float yGlobalPosition = 10;
-			if (GUI.Button(new Rect(new Vector2(10, yGlobalPosition), new Vector2(Screen.width - 20, 2 * fontSize)), "OPEN WALLET"))
+			if (ScreenBitcoinController.Instance.ScreensEnabled > 0)
 			{
-				ScreenBitcoinController.Instance.InitializeBitcoin(ScreenBitcoinPrivateKeyView.SCREEN_NAME);
-				m_buttonsVisible = false;
+				return;
 			}
-			yGlobalPosition += 2.2f * fontSize;
+		}
+		
 
-			if (GUI.Button(new Rect(new Vector2(10, yGlobalPosition), new Vector2(Screen.width - 20, 2 * fontSize)), "SEND MONEY"))
-			{
-				ScreenBitcoinController.Instance.InitializeBitcoin(ScreenBitcoinSendView.SCREEN_NAME);
-				m_buttonsVisible = false;
-			}
+		float fontSize = 1.2f * 15;
+		float yGlobalPosition = 10;
+		if (GUI.Button(new Rect(new Vector2(10, yGlobalPosition), new Vector2(Screen.width - 20, 2 * fontSize)), "OPEN WALLET"))
+		{
+			ScreenBitcoinController.Instance.InitializeBitcoin(ScreenBitcoinPrivateKeyView.SCREEN_NAME);
+			m_hasBeenInitializedBitcoin = true;
+		}
+		yGlobalPosition += 2.2f * fontSize;
+
+		if (GUI.Button(new Rect(new Vector2(10, yGlobalPosition), new Vector2(Screen.width - 20, 2 * fontSize)), "SEND MONEY"))
+		{
+			ScreenBitcoinController.Instance.InitializeBitcoin(ScreenBitcoinSendView.SCREEN_NAME);
+			m_hasBeenInitializedBitcoin = true;
 		}
 	}
 }
