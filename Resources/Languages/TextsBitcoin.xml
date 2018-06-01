@@ -579,6 +579,15 @@
     <es>Elige cuenta para enviar</es>
   </text>
   
+  <text id="screen.bitcoin.wallet.once.you.set.up.done">
+    <en>Do you want to save this address?</en>
+    <es>Desea guardar esta dirección?</es>
+  </text>
+
+  <text id="screen.bitcoin.your.private.address">
+    <en>Your Private Bitcoin Address</en>
+    <es>Tu dirección privada Bitcoin</es>
+  </text>
 
 </texts>
 
