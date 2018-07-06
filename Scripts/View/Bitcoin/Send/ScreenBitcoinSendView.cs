@@ -243,7 +243,7 @@ namespace YourBitcoinManager
 			if ((_newValue.Length > 0) && (BitCoinController.Instance.CurrentPublicKey != m_publicAddressToSend))
 			{
 				m_publicAddressToSend = m_publicAddressInput.text;
-                ValidPublicKeyToSend = (m_publicAddressToSend.Length == 34); // BitCoinController.Instance.ValidatePublicKey(m_publicAddressToSend);
+                ValidPublicKeyToSend = BitCoinController.Instance.ValidatePublicKey(m_publicAddressToSend);
 #if ENABLE_FULL_WALLET
 				bool enableButtonSaveAddress = true;
 				if (BitCoinController.Instance.ContainsAddress(m_publicAddressToSend))
