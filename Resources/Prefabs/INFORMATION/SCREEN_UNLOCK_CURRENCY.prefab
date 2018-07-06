@@ -144,7 +144,7 @@ GameObject:
   - component: {fileID: 114156619327940186}
   - component: {fileID: 114555761711013516}
   m_Layer: 5
-  m_Name: SCREEN_UNLOCK_BITCOIN
+  m_Name: SCREEN_UNLOCK_CURRENCY
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
