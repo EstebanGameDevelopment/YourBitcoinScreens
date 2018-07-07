@@ -143,7 +143,7 @@ namespace YourBitcoinManager
 				}
 				if (subEvent == SUBEVENT_CONFIRMATION_OPEN_URL_BITCOINS_TO_PAYPAL)
 				{
-					Application.OpenURL("https://www.yourvrexperience.com/?page_id=4247");
+					Application.OpenURL("https://www.coinbase.com");
 				}				
 			}
 			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
