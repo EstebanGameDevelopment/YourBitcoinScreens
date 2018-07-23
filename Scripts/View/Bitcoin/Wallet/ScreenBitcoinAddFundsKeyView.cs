@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using NBitcoin;
 using UnityEngine;
 using UnityEngine.UI;
 using YourBitcoinController;
 using YourCommonTools;
+#if ENABLE_BITCOIN
+using NBitcoin;
+#endif
 
 namespace YourBitcoinManager
 {
@@ -57,9 +59,11 @@ namespace YourBitcoinManager
 			m_container.Find("PublicKeyLabel").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.bitcoin.copy.paste.public.address");
 			m_container.Find("PublicKeyInput").GetComponent<InputField>().text = BitCoinController.Instance.CurrentPublicKey;
 
-			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
+			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);
 
+#if ENABLE_BITCOIN
 			m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + BitCoinController.Instance.Network.ToString();
+#endif
 		}
 
 		// -------------------------------------------

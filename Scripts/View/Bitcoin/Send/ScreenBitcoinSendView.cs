@@ -6,6 +6,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using YourBitcoinController;
 using YourCommonTools;
+using YourEthereumController;
+using YourEthereumManager;
 
 namespace YourBitcoinManager
 {
@@ -49,7 +51,7 @@ namespace YourBitcoinManager
 
 		private InputField m_amountInput;
 		private string m_amountInCurrency = "0";
-		private decimal m_amountInBitcoins = 0;
+		private decimal m_amountInCryptocurrency = 0;
 		private Dropdown m_currencies;
 		private string m_currencySelected;
 		private decimal m_exchangeToBitcoin;
@@ -79,6 +81,7 @@ namespace YourBitcoinManager
 		}
 		public bool ValidPublicKeyToSend
 		{
+            get { return m_validPublicAddressToSend; }
 			set
 			{
 				m_validPublicAddressToSend = value;
@@ -216,14 +219,18 @@ namespace YourBitcoinManager
 			m_feeInCurrency = (BitCoinController.Instance.FeesTransactions[m_fees.itemText.text] * (decimal)m_exchangeToBitcoin).ToString();
 			m_feeInput.text = m_feeInCurrency;
 
-			m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + BitCoinController.Instance.Network.ToString();
-		}
+#if ENABLE_BITCOIN
+            m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + BitCoinController.Instance.Network.ToString();
+#elif ENABLE_ETHEREUM
+            m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + EthereumController.Instance.NetworkAPI.ToString();
+#endif
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Destroy
 		 */
-		public override bool Destroy()
+        public override bool Destroy()
 		{
 			if (base.Destroy()) return true;
 
@@ -271,7 +278,7 @@ namespace YourBitcoinManager
 			if (_newValue.Length > 0)
 			{
 				m_amountInCurrency = m_amountInput.text;
-				m_amountInBitcoins = decimal.Parse(m_amountInCurrency) / m_exchangeToBitcoin;
+				m_amountInCryptocurrency = decimal.Parse(m_amountInCurrency) / m_exchangeToBitcoin;
 			}
 		}
 
@@ -287,7 +294,7 @@ namespace YourBitcoinManager
 			m_exchangeToBitcoin = (decimal)BitCoinController.Instance.CurrenciesExchange[m_currencySelected];
 
 			// UPDATE AMOUNT
-			m_amountInCurrency = (m_amountInBitcoins * m_exchangeToBitcoin).ToString();
+			m_amountInCurrency = (m_amountInCryptocurrency * m_exchangeToBitcoin).ToString();
 			m_amountInput.text = m_amountInCurrency;
 
 			// UPDATE FEE
@@ -438,7 +445,7 @@ namespace YourBitcoinManager
 #if DEBUG_MODE_DISPLAY_LOG
 			Debug.Log("m_messageInput.text=" + m_messageInput.text);
 			Debug.Log("m_publicAddressToSend=" + m_publicAddressToSend);
-			Debug.Log("m_amountInBitcoins=" + m_amountInBitcoins);
+			Debug.Log("m_amountInCryptocurrency=" + m_amountInCryptocurrency);
 			Debug.Log("m_feeInBitcoins=" + m_feeInBitcoins);
 #endif
 			if (!m_validPublicAddressToSend)
@@ -454,13 +461,13 @@ namespace YourBitcoinManager
 				}
 				else
 				{					
-					if (m_amountInBitcoins == 0) 
+					if (m_amountInCryptocurrency == 0) 
 					{
 						ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), LanguageController.Instance.GetText("screen.bitcoin.send.amount.no.zero"), null, "");						
 					}
 					else
 					{
-						decimal amountTotalUSD = m_amountInBitcoins * BitCoinController.Instance.CurrenciesExchange[BitCoinController.CODE_DOLLAR];
+						decimal amountTotalUSD = m_amountInCryptocurrency * BitCoinController.Instance.CurrenciesExchange[BitCoinController.CODE_DOLLAR];
 						if (amountTotalUSD < 1m)
 						{
 							ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_CONFIRMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.warning"), LanguageController.Instance.GetText("screen.bitcoin.send.amount.too.low"), null, SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE);
@@ -480,7 +487,7 @@ namespace YourBitcoinManager
 		 */
 		private void SummaryTransactionForLastConfirmation()
 		{
-			ScreenBitcoinController.Instance.CreateNewScreen(ScreenTransactionSummaryView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, m_amountInBitcoins, m_feeInBitcoins, m_currencySelected, BitCoinController.Instance.AddressToLabel(m_publicAddressToSend), m_messageInput.text);
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenTransactionSummaryView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, m_amountInCryptocurrency, m_feeInBitcoins, m_currencySelected, BitCoinController.Instance.AddressToLabel(m_publicAddressToSend), m_messageInput.text);
 		}
 
 		// -------------------------------------------
@@ -489,18 +496,82 @@ namespace YourBitcoinManager
 		 */
 		private void OnExecuteRealPayment()
 		{
-			BitCoinController.Instance.Pay(BitCoinController.Instance.CurrentPrivateKey,
+#if ENABLE_BITCOIN
+            BitCoinController.Instance.Pay(BitCoinController.Instance.CurrentPrivateKey,
 								m_publicAddressToSend,
 								m_messageInput.text,
-								m_amountInBitcoins,
+								m_amountInCryptocurrency,
 								m_feeInBitcoins);
-		}
+#elif ENABLE_ETHEREUM
+            EthereumController.Instance.Pay(BitCoinController.Instance.CurrentPrivateKey,
+                                m_publicAddressToSend,
+                                m_messageInput.text,
+                                m_amountInCryptocurrency);
+#endif
+        }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * OnUIEvent
+		 */
+        protected void OnUIEvent(string _nameEvent, params object[] _list)
+        {
+#if ENABLE_FULL_WALLET
+			if (_nameEvent == ScreenEnterEmailView.EVENT_SCREENENTEREMAIL_CONFIRMATION)
+			{
+				string label = (string)_list[0];
+				BitCoinController.Instance.SaveAddresses(m_publicAddressToSend, label);
+				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.address.saved"), null, "");
+				m_saveAddress.SetActive(false);
+				if (label.Length > 0)
+				{
+					m_container.Find("Address/Label").GetComponent<Text>().text = label;
+					m_container.Find("Address/Label").GetComponent<Text>().color = Color.red;
+				}
+			}
+#endif
+            if (_nameEvent == EVENT_SCREENBITCOINSEND_USER_CONFIRMED_RUN_TRANSACTION)
+            {
+                ScreenBitcoinController.Instance.DestroyScreensOverlay();
+                ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
+                Invoke("OnExecuteRealPayment", 0.1f);
+            }
+
+            if (!this.gameObject.activeSelf) return;
+
+            if (_nameEvent == ScreenController.EVENT_CONFIRMATION_POPUP)
+            {
+                string subEvent = (string)_list[2];
+                if (subEvent == SUB_EVENT_SCREENBITCOIN_CONFIRMATION_EXIT_TRANSACTION)
+                {
+                    if ((bool)_list[1])
+                    {
+                        Destroy();
+                    }
+                }
+                if (subEvent == SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE)
+                {
+                    if ((bool)_list[1])
+                    {
+                        SummaryTransactionForLastConfirmation();
+                    }
+                }
+                if (subEvent == SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE)
+                {
+                    BitcoinEventController.Instance.DispatchBitcoinEvent(BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_USER_ACKNOWLEDGE, m_transactionSuccess, m_transactionIDHex);
+                }
+            }
+            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+            {
+                OnBackButton();
+            }
+        }
+
+        // -------------------------------------------
+        /* 
 		 * OnBitcoinEvent
 		 */
-		private void OnBitcoinEvent(string _nameEvent, params object[] _list)
+        private void OnBitcoinEvent(string _nameEvent, params object[] _list)
 		{
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_DONE)
 			{
@@ -544,61 +615,69 @@ namespace YourBitcoinManager
 			}
 		}
 
-		// -------------------------------------------
-		/* 
-		 * OnUIEvent
+        // -------------------------------------------
+        /* 
+		 * OnEthereumEvent
 		 */
-		protected void OnUIEvent(string _nameEvent, params object[] _list)
-		{
-#if ENABLE_FULL_WALLET
-			if (_nameEvent == ScreenEnterEmailView.EVENT_SCREENENTEREMAIL_CONFIRMATION)
-			{
-				string label = (string)_list[0];
-				BitCoinController.Instance.SaveAddresses(m_publicAddressToSend, label);
-				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.address.saved"), null, "");
-				m_saveAddress.SetActive(false);
-				if (label.Length > 0)
-				{
-					m_container.Find("Address/Label").GetComponent<Text>().text = label;
-					m_container.Find("Address/Label").GetComponent<Text>().color = Color.red;
-				}
-			}
+        private void OnEthereumEvent(string _nameEvent, params object[] _list)
+        {
+            if (_nameEvent == EthereumController.EVENT_ETHEREUMCONTROLLER_TRANSACTION_DONE)
+            {
+                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
+                m_transactionSuccess = (bool)_list[0];
+                m_transactionIDHex = "";
+                if ((bool)_list[0])
+                {
+                    HasChanged = false;
+                    EthereumController.Instance.RefreshBalancePrivateKeys();
+                    m_transactionIDHex = (string)_list[1];
+                    ScreenEthereumController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.transaction.success"), null, SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE);
+                }
+                else
+                {
+                    string messageError = LanguageController.Instance.GetText("screen.bitcoin.send.transaction.error");
+                    if (_list.Length >= 2)
+                    {
+                        messageError = (string)_list[1];
+                    }
+                    ScreenEthereumController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), messageError, null, "");
+                }
+            }
+            if (_nameEvent == EthereumController.EVENT_ETHEREUMCONTROLLER_SELECTED_PUBLIC_KEY)
+            {
+                string publicKeyAddress = (string)_list[0];
+                HasChanged = true;
+                m_publicAddressInput.text = publicKeyAddress;
+                m_publicAddressToSend = publicKeyAddress;
+                EthereumController.Instance.ValidatePublicKey(m_publicAddressToSend);
+#if DEBUG_MODE_DISPLAY_LOG
+				Debug.Log("EVENT_BITCOINCONTROLLER_SELECTED_PUBLIC_KEY::PUBLIC KEY ADDRESS=" + publicKeyAddress);
 #endif
-			if (_nameEvent == EVENT_SCREENBITCOINSEND_USER_CONFIRMED_RUN_TRANSACTION)
-			{
-				ScreenBitcoinController.Instance.DestroyScreensOverlay();
-				ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
-				Invoke("OnExecuteRealPayment", 0.1f);
-			}
+            }
+            if (_nameEvent == EthereumController.EVENT_ETHEREUMCONTROLLER_VALIDATE_PUBLIC_KEY)
+            {
+                string publicKeyAddress = (string)_list[0];
+                if (m_publicAddressToSend == publicKeyAddress)
+                {
+                    ValidPublicKeyToSend = (bool)_list[1];
+#if DEBUG_MODE_DISPLAY_LOG
+				Debug.Log("EVENT_ETHEREUMCONTROLLER_VALIDATE_PUBLIC_KEY::VALIDATION RESULT=" + ValidPublicKeyToSend);
+#endif
+                    string labelAddress = BitCoinController.Instance.AddressToLabel(m_publicAddressToSend);
+                    if ((labelAddress.Length > 0) && (labelAddress != m_publicAddressToSend))
+                    {
+                        m_container.Find("Address/Label").GetComponent<Text>().text = labelAddress;
+                        m_container.Find("Address/Label").GetComponent<Text>().color = Color.red;
+                    }
+                }
+                else
+                {
+#if DEBUG_MODE_DISPLAY_LOG
+				Debug.Log("EVENT_ETHEREUMCONTROLLER_VALIDATE_PUBLIC_KEY::VALIDATION RESULT ERROR, NOT THE SAME PUBLIC ADDRESS::m_publicAddressToSend["+m_publicAddressToSend+"]::publicKeyAddress RECEIVED["+publicKeyAddress+"]");
+#endif
+                }
+            }
+        }
 
-			if (!this.gameObject.activeSelf) return;
-
-			if (_nameEvent == ScreenController.EVENT_CONFIRMATION_POPUP)
-			{
-				string subEvent = (string)_list[2];
-				if (subEvent == SUB_EVENT_SCREENBITCOIN_CONFIRMATION_EXIT_TRANSACTION)
-				{
-					if ((bool)_list[1])
-					{
-						Destroy();
-					}
-				}
-				if (subEvent == SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE)
-				{
-					if ((bool)_list[1])
-					{
-						SummaryTransactionForLastConfirmation();
-					}
-				}
-				if (subEvent == SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE)
-				{
-					BitcoinEventController.Instance.DispatchBitcoinEvent(BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_USER_ACKNOWLEDGE, m_transactionSuccess, m_transactionIDHex);					
-				}
-			}
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
-			{
-				OnBackButton();
-			}
-		}
-	}
+    }
 }

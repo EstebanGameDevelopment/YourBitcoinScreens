@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using NBitcoin;
 using UnityEngine;
 using UnityEngine.UI;
 using YourBitcoinController;
 using YourCommonTools;
+#if ENABLE_BITCOIN
+using NBitcoin;
+#endif
 
 namespace YourBitcoinManager
 {
@@ -209,7 +211,9 @@ namespace YourBitcoinManager
 
 			LoadDataPrivateKey();
 
+#if ENABLE_BITCOIN
 			m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + BitCoinController.Instance.Network.ToString();
+#endif
 
 			UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_WAIT);
 
@@ -469,6 +473,7 @@ namespace YourBitcoinManager
 		 */
 		public void OnRealCreateNewWallet()
 		{
+#if ENABLE_BITCOIN
 			Key newKey = new Key();
 			BitcoinSecret newPrivatteKey = newKey.GetBitcoinSecret(BitCoinController.Instance.Network);
 
@@ -477,7 +482,7 @@ namespace YourBitcoinManager
 			HasChanged = true;
 
 			m_createNewWallet.SetActive(false);
-
+#endif
 			UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
 		}
 

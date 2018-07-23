@@ -92,8 +92,9 @@ namespace YourBitcoinManager
 #if UNITY_STANDALONE_WIN && !UNITY_EDITOR
         Screen.SetResolution(550, 900, false);
 #endif
-					
-			UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
+
+#if ENABLE_BITCOIN            
+            UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
 			BitcoinEventController.Instance.BitcoinEvent += new BitcoinEventHandler(OnBitcoinEvent);
 
 			if (ScreenToLoad.Length > 0)
@@ -101,8 +102,9 @@ namespace YourBitcoinManager
 				LanguageController.Instance.Initialize();
 
 				InitializeBitcoin(ScreenToLoad);
-			}			
-		}
+			}
+#endif
+        }
 
 		// -------------------------------------------
 		/* 
@@ -141,17 +143,18 @@ namespace YourBitcoinManager
 		{
 			base.Destroy();
 
-			UIEventController.Instance.UIEvent -= OnUIEvent;
+#if ENABLE_BITCOIN
+            UIEventController.Instance.UIEvent -= OnUIEvent;
 			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
 
 			LanguageController.Instance.Destroy();
 			CommController.Instance.Destroy();
 			BitCoinController.Instance.Destroy();
-			Destroy(_instance);
+#endif
+
+            Destroy(_instance);
 			_instance = null;
 		}
-
-
 
 		// -------------------------------------------
 		/* 
