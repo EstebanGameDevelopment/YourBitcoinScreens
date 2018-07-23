@@ -498,11 +498,6 @@ namespace YourBitcoinManager
 								m_messageInput.text,
 								m_amountInCryptocurrency,
 								m_feeInBitcoins);
-#elif ENABLE_ETHEREUM
-            EthereumController.Instance.Pay(BitCoinController.Instance.CurrentPrivateKey,
-                                m_publicAddressToSend,
-                                m_messageInput.text,
-                                m_amountInCryptocurrency);
 #endif
         }
 
