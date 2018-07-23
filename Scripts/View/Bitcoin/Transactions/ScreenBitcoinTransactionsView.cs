@@ -6,7 +6,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using YourBitcoinController;
 using YourCommonTools;
-using YourEthereumController;
 
 namespace YourBitcoinManager
 {
@@ -88,8 +87,6 @@ namespace YourBitcoinManager
 
 #if ENABLE_BITCOIN
 			m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + BitCoinController.Instance.Network.ToString();
-#elif ENABLE_ETHEREUM
-            m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + EthereumController.Instance.NetworkAPI.ToString();
 #endif
 
             Tabs[TRANSACTION_CONSULT_ALL].GetComponent<Button>().onClick.AddListener(OnConsultAll);

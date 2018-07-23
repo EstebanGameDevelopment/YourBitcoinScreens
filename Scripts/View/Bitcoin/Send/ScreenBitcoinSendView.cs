@@ -6,8 +6,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using YourBitcoinController;
 using YourCommonTools;
-using YourEthereumController;
-using YourEthereumManager;
 
 namespace YourBitcoinManager
 {
@@ -221,8 +219,6 @@ namespace YourBitcoinManager
 
 #if ENABLE_BITCOIN
             m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + BitCoinController.Instance.Network.ToString();
-#elif ENABLE_ETHEREUM
-            m_container.Find("Network").GetComponent<Text>().text = LanguageController.Instance.GetText("text.network") + EthereumController.Instance.NetworkAPI.ToString();
 #endif
         }
 
@@ -614,70 +610,5 @@ namespace YourBitcoinManager
 				}
 			}
 		}
-
-        // -------------------------------------------
-        /* 
-		 * OnEthereumEvent
-		 */
-        private void OnEthereumEvent(string _nameEvent, params object[] _list)
-        {
-            if (_nameEvent == EthereumController.EVENT_ETHEREUMCONTROLLER_TRANSACTION_DONE)
-            {
-                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
-                m_transactionSuccess = (bool)_list[0];
-                m_transactionIDHex = "";
-                if ((bool)_list[0])
-                {
-                    HasChanged = false;
-                    EthereumController.Instance.RefreshBalancePrivateKeys();
-                    m_transactionIDHex = (string)_list[1];
-                    ScreenEthereumController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("screen.bitcoin.send.transaction.success"), null, SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE);
-                }
-                else
-                {
-                    string messageError = LanguageController.Instance.GetText("screen.bitcoin.send.transaction.error");
-                    if (_list.Length >= 2)
-                    {
-                        messageError = (string)_list[1];
-                    }
-                    ScreenEthereumController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), messageError, null, "");
-                }
-            }
-            if (_nameEvent == EthereumController.EVENT_ETHEREUMCONTROLLER_SELECTED_PUBLIC_KEY)
-            {
-                string publicKeyAddress = (string)_list[0];
-                HasChanged = true;
-                m_publicAddressInput.text = publicKeyAddress;
-                m_publicAddressToSend = publicKeyAddress;
-                EthereumController.Instance.ValidatePublicKey(m_publicAddressToSend);
-#if DEBUG_MODE_DISPLAY_LOG
-				Debug.Log("EVENT_BITCOINCONTROLLER_SELECTED_PUBLIC_KEY::PUBLIC KEY ADDRESS=" + publicKeyAddress);
-#endif
-            }
-            if (_nameEvent == EthereumController.EVENT_ETHEREUMCONTROLLER_VALIDATE_PUBLIC_KEY)
-            {
-                string publicKeyAddress = (string)_list[0];
-                if (m_publicAddressToSend == publicKeyAddress)
-                {
-                    ValidPublicKeyToSend = (bool)_list[1];
-#if DEBUG_MODE_DISPLAY_LOG
-				Debug.Log("EVENT_ETHEREUMCONTROLLER_VALIDATE_PUBLIC_KEY::VALIDATION RESULT=" + ValidPublicKeyToSend);
-#endif
-                    string labelAddress = BitCoinController.Instance.AddressToLabel(m_publicAddressToSend);
-                    if ((labelAddress.Length > 0) && (labelAddress != m_publicAddressToSend))
-                    {
-                        m_container.Find("Address/Label").GetComponent<Text>().text = labelAddress;
-                        m_container.Find("Address/Label").GetComponent<Text>().color = Color.red;
-                    }
-                }
-                else
-                {
-#if DEBUG_MODE_DISPLAY_LOG
-				Debug.Log("EVENT_ETHEREUMCONTROLLER_VALIDATE_PUBLIC_KEY::VALIDATION RESULT ERROR, NOT THE SAME PUBLIC ADDRESS::m_publicAddressToSend["+m_publicAddressToSend+"]::publicKeyAddress RECEIVED["+publicKeyAddress+"]");
-#endif
-                }
-            }
-        }
-
     }
 }
