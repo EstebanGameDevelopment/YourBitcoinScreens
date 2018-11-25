@@ -523,7 +523,7 @@ namespace YourBitcoinManager
 #endif
             if (_nameEvent == EVENT_SCREENBITCOINSEND_USER_CONFIRMED_RUN_TRANSACTION)
             {
-                ScreenBitcoinController.Instance.DestroyScreensOverlay();
+                ScreenBitcoinController.Instance.DestroyScreensAboveLayerPool();
                 ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
                 Invoke("OnExecuteRealPayment", 0.1f);
             }

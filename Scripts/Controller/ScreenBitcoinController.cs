@@ -195,7 +195,7 @@ namespace YourBitcoinManager
 
 			if (_nameEvent == ScreenController.EVENT_FORCE_DESTRUCTION_POPUP)
 			{
-				DestroyScreensOverlay();
+                DestroyScreensAboveLayerPool();
 			}
 			
 		}
