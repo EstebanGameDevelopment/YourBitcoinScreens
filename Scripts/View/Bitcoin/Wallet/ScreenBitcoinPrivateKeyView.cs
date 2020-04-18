@@ -114,6 +114,8 @@ namespace YourBitcoinManager
 		 */
 		public override void Initialize(params object[] _list)
 		{
+            base.Initialize(_list);
+
 #if ENABLE_FULL_WALLET
 			if ((_list != null) && (_list.Length > 0))
 			{
@@ -126,7 +128,7 @@ namespace YourBitcoinManager
 				m_enableDelete = false;
 			}
 #else
-			if (_list != null)
+            if (_list != null)
 			{
 				if (_list.Length > 0)
 				{
@@ -492,7 +494,7 @@ namespace YourBitcoinManager
 		 */
 		private void OnCheckInputTransactions()
 		{
-			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinTransactionsView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, true, ScreenBitcoinTransactionsView.TRANSACTION_CONSULT_INPUTS);
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinTransactionsView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, ScreenBitcoinTransactionsView.TRANSACTION_CONSULT_INPUTS);
 		}
 
 		// -------------------------------------------
@@ -501,7 +503,7 @@ namespace YourBitcoinManager
 		 */
 		private void OnCheckOutputTransactions()
 		{
-			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinTransactionsView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, true, ScreenBitcoinTransactionsView.TRANSACTION_CONSULT_OUTPUTS);
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinTransactionsView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, ScreenBitcoinTransactionsView.TRANSACTION_CONSULT_OUTPUTS);
 		}		
 
 		// -------------------------------------------

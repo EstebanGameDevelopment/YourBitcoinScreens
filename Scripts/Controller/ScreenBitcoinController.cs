@@ -191,7 +191,9 @@ namespace YourBitcoinManager
 		 */
 		protected override void OnUIEvent(string _nameEvent, params object[] _list)
 		{
-			base.OnUIEvent(_nameEvent, _list);
+            if (!PreProcessScreenEvents(_nameEvent, _list)) return;
+
+            base.OnUIEvent(_nameEvent, _list);
 
 			if (_nameEvent == ScreenController.EVENT_FORCE_DESTRUCTION_POPUP)
 			{

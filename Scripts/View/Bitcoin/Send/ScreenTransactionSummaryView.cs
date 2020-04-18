@@ -42,7 +42,9 @@ namespace YourBitcoinManager
 		 */
 		public override void Initialize(params object[] _list)
 		{
-			decimal amount = (decimal)_list[0];
+            base.Initialize(_list);
+
+            decimal amount = (decimal)_list[0];
 			decimal fee = (decimal)_list[1];
 			string currency = (string)_list[2];
 			string toAddressTarget = (string)_list[3];

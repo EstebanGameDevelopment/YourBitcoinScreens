@@ -102,7 +102,9 @@ namespace YourBitcoinManager
 		 */
 		public override void Initialize(params object[] _list)
 		{
-			string publicKeyAddress = "";
+            base.Initialize(_list);
+
+            string publicKeyAddress = "";
 			string amountTransaction = "0";
 			string messageTransaction = LanguageController.Instance.GetText("screen.send.explain.please");
 
@@ -110,17 +112,21 @@ namespace YourBitcoinManager
 			{
 				if (_list.Length > 0)
 				{
-					publicKeyAddress = (string)_list[0];					
-					if (_list.Length > 2)
-					{
-						amountTransaction = (string)_list[1];
-						BitCoinController.Instance.CurrentCurrency = (string)_list[2];
-						if (_list.Length > 3)
-						{
-							messageTransaction = (string)_list[3];
-						}
-					}					
-				}
+                    List<object> sendBitcoinParams = (List<object>)_list[0];
+                    if (sendBitcoinParams != null)
+                    {
+                        publicKeyAddress = (string)sendBitcoinParams[0];
+                        if (sendBitcoinParams.Count > 2)
+                        {
+                            amountTransaction = (string)sendBitcoinParams[1];
+                            BitCoinController.Instance.CurrentCurrency = (string)sendBitcoinParams[2];
+                            if (sendBitcoinParams.Count > 3)
+                            {
+                                messageTransaction = (string)sendBitcoinParams[3];
+                            }
+                        }
+                    }
+                }
 			}
 
 			m_root = this.gameObject;
@@ -342,9 +348,9 @@ namespace YourBitcoinManager
 		{
 			UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_POPUP);
 #if ENABLE_FULL_WALLET
-			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, true);
+			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false);
 #else
-			ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, true, BitCoinController.Instance.CurrentPublicKey);
+            ScreenBitcoinController.Instance.CreateNewScreen(ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, BitCoinController.Instance.CurrentPublicKey);
 #endif
 		}
 
