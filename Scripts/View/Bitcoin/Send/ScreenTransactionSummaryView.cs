@@ -44,11 +44,13 @@ namespace YourBitcoinManager
 		{
             base.Initialize(_list);
 
-            decimal amount = (decimal)_list[0];
-			decimal fee = (decimal)_list[1];
-			string currency = (string)_list[2];
-			string toAddressTarget = (string)_list[3];
-			string subjectTransaction = (string)_list[4];
+            List<object> paramsSummary = (List<object>)_list[0];
+
+            decimal amount = (decimal)paramsSummary[0];
+			decimal fee = (decimal)paramsSummary[1];
+			string currency = (string)paramsSummary[2];
+			string toAddressTarget = (string)paramsSummary[3];
+			string subjectTransaction = (string)paramsSummary[4];
 
 			m_root = this.gameObject;
 			m_container = m_root.transform.Find("Content");

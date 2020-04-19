@@ -101,8 +101,8 @@ namespace YourBitcoinManager
 			Utilities.Clipboard = m_publicKey;
 			string title = LanguageController.Instance.GetText("message.info");
 			string description = LanguageController.Instance.GetText("screen.bitcoin.copied.public.key.clipboard");
-			ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, title, description, null, SUBEVENT_CONFIRMATION_OPEN_URL_TO_ADD_BITCOINS);
-		}
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, title, description, null, SUBEVENT_CONFIRMATION_OPEN_URL_TO_ADD_BITCOINS);
+        }
 
 		// -------------------------------------------
 		/* 
@@ -122,8 +122,8 @@ namespace YourBitcoinManager
 				pages.Add(new PageInformation(title, LanguageController.Instance.GetText("screen.bitcoin.choose.your.own.method.bitcoins.to.paypal.2"), null, ""));
 				pages.Add(new PageInformation(title, LanguageController.Instance.GetText("screen.bitcoin.choose.your.own.method.bitcoins.to.paypal.3"), null, SUBEVENT_CONFIRMATION_OPEN_URL_BITCOINS_TO_PAYPAL));
 			}
-			ScreenBitcoinController.Instance.CreateNewInformationScreen(ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, pages);			
-		}
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, pages);
+        }
 
 		// -------------------------------------------
 		/* 
