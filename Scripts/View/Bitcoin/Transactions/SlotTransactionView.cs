@@ -119,11 +119,30 @@ namespace YourBitcoinManager
 			return true;
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * GetOnClick
+		 */
+        public ButtonClickedEvent GetOnClick()
+        {
+            return onClick;
+        }
+
+        // -------------------------------------------
+        /* 
+		 * RunOnClick
+		 */
+        public bool RunOnClick()
+        {
+            ActionOnClick();
+            return true;
+        }
+
+        // -------------------------------------------
+        /* 
 		 * UpdateCurrency
 		 */
-		public void UpdateCurrency()
+        public void UpdateCurrency()
 		{
 			string balanceCurrencyWallet = (m_amount * BitCoinController.Instance.CurrenciesExchange[BitCoinController.Instance.CurrentCurrency]).ToString();
 			m_container.Find("Price").GetComponent<Text>().text = balanceCurrencyWallet;
@@ -149,14 +168,24 @@ namespace YourBitcoinManager
 		public override void OnPointerClick(PointerEventData eventData)
 		{
 			base.OnPointerClick(eventData);
-			UIEventController.Instance.DispatchUIEvent(EVENT_SLOT_TRANSACTION_SELECTED, m_id);
-		}
 
-		// -------------------------------------------
-		/* 
+            ActionOnClick();
+        }
+
+        // -------------------------------------------
+        /* 
+		 * ActionOnClick
+		 */
+        private void ActionOnClick()
+        {
+            UIEventController.Instance.DispatchUIEvent(EVENT_SLOT_TRANSACTION_SELECTED, m_id);
+        }
+
+        // -------------------------------------------
+        /* 
 		 * OnBitcoinEvent
 		 */
-		private void OnBitcoinEvent(string _nameEvent, params object[] _list)
+        private void OnBitcoinEvent(string _nameEvent, params object[] _list)
 		{
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_CURRENCY_CHANGED)
 			{
