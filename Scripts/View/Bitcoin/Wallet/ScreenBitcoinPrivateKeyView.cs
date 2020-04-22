@@ -348,7 +348,7 @@ namespace YourBitcoinManager
 		{
 			string info = LanguageController.Instance.GetText("message.warning");
 			string description = LanguageController.Instance.GetText("screen.bitcoin.wallet.send.private.key.warning");
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenEmailPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, 1, null, ScreenEmailPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false);
         }
 
 		// -------------------------------------------
@@ -459,7 +459,7 @@ namespace YourBitcoinManager
 			}
 			else
 			{
-                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenBitcoinAddFundsKeyView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, BitCoinController.Instance.CurrentPublicKey);
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, 1, null, ScreenBitcoinAddFundsKeyView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, BitCoinController.Instance.CurrentPublicKey);
             }
 		}
 
@@ -499,7 +499,7 @@ namespace YourBitcoinManager
 		 */
 		private void OnCheckInputTransactions()
 		{
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenBitcoinTransactionsView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, ScreenBitcoinTransactionsView.TRANSACTION_CONSULT_INPUTS);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, 1, null, ScreenBitcoinTransactionsView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, ScreenBitcoinTransactionsView.TRANSACTION_CONSULT_INPUTS);
         }
 
 		// -------------------------------------------
@@ -508,7 +508,7 @@ namespace YourBitcoinManager
 		 */
 		private void OnCheckOutputTransactions()
 		{
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenBitcoinTransactionsView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, ScreenBitcoinTransactionsView.TRANSACTION_CONSULT_OUTPUTS);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, 1, null, ScreenBitcoinTransactionsView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, ScreenBitcoinTransactionsView.TRANSACTION_CONSULT_OUTPUTS);
         }		
 
 		// -------------------------------------------
