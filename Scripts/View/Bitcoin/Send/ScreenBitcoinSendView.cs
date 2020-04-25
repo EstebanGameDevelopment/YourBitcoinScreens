@@ -23,6 +23,7 @@ namespace YourBitcoinManager
 		// EVENTS
 		// ----------------------------------------------	
 		public const string EVENT_SCREENBITCOINSEND_USER_CONFIRMED_RUN_TRANSACTION = "EVENT_SCREENBITCOINSEND_USER_CONFIRMED_RUN_TRANSACTION";
+		public const string EVENT_SCREENBITCOINSEND_CANCELATION                     = "EVENT_SCREENBITCOINSEND_CANCELATION";
 
 		// ----------------------------------------------
 		// SUBS
@@ -204,7 +205,7 @@ namespace YourBitcoinManager
 			m_messageInput.text = messageTransaction;
 			m_container.Find("Pay/ExecutePayment").GetComponent<Button>().onClick.AddListener(OnExecutePayment);
 			
-			UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);			
+			UIEventController.Instance.UIEvent += new UIEventHandler(OnMenuEvent);			
 			BitcoinEventController.Instance.BitcoinEvent += new BitcoinEventHandler(OnBitcoinEvent);
 
 			// UPDATE SELECTION CURRENCY
@@ -236,7 +237,7 @@ namespace YourBitcoinManager
 		{
 			if (base.Destroy()) return true;
 
-			UIEventController.Instance.UIEvent -= OnUIEvent;
+			UIEventController.Instance.UIEvent -= OnMenuEvent;
 			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
 			UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_DESTROY_SCREEN, this.gameObject);
 
@@ -350,7 +351,9 @@ namespace YourBitcoinManager
 #if ENABLE_FULL_WALLET
             UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false);
 #else
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, BitCoinController.Instance.CurrentPublicKey);
+            List<object> paramsWallet = new List<object>();
+            paramsWallet.Add(BitCoinController.Instance.CurrentPublicKey);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenBitcoinPrivateKeyView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, paramsWallet.ToArray());
 #endif
         }
 
@@ -415,7 +418,8 @@ namespace YourBitcoinManager
             }
 			else
 			{
-				Destroy();
+                BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_SCREENBITCOINSEND_CANCELATION);
+                Destroy();
 			}
 		}
 
@@ -495,7 +499,7 @@ namespace YourBitcoinManager
             paramsSummaryTransaction.Add(m_currencySelected);
             paramsSummaryTransaction.Add(BitCoinController.Instance.AddressToLabel(m_publicAddressToSend));
             paramsSummaryTransaction.Add(m_messageInput.text);
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenTransactionSummaryView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, paramsSummaryTransaction);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, 1, null, ScreenTransactionSummaryView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, paramsSummaryTransaction);
         }
 
 		// -------------------------------------------
@@ -517,8 +521,10 @@ namespace YourBitcoinManager
         /* 
 		 * OnUIEvent
 		 */
-        protected void OnUIEvent(string _nameEvent, params object[] _list)
+        protected override void OnMenuEvent(string _nameEvent, params object[] _list)
         {
+            base.OnMenuEvent(_nameEvent, _list);
+
 #if ENABLE_FULL_WALLET
 			if (_nameEvent == ScreenEnterEmailView.EVENT_SCREENENTEREMAIL_CONFIRMATION)
 			{
@@ -564,9 +570,12 @@ namespace YourBitcoinManager
                     BitcoinEventController.Instance.DispatchBitcoinEvent(BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_USER_ACKNOWLEDGE, m_transactionSuccess, m_transactionIDHex);
                 }
             }
-            if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+            if (this.gameObject.activeSelf)
             {
-                OnBackButton();
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+                {
+                    OnBackButton();
+                }
             }
         }
 
