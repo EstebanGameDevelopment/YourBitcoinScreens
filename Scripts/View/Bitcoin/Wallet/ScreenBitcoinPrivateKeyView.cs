@@ -834,10 +834,13 @@ namespace YourBitcoinManager
 			{
 				CheckKeyEnteredInMainField();
 			}
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
-			{
-				OnBackButton();
-			}
+            if (this.gameObject.activeSelf)
+            {
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+                {
+                    OnBackButton();
+                }
+            }
 		}
 	}
 }

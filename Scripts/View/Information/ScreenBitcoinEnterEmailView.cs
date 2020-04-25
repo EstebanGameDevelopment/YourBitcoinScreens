@@ -90,16 +90,21 @@ namespace YourBitcoinManager
 			Destroy();
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * OnBasicEvent
 		 */
-		private void OnMenuEvent(string _nameEvent, params object[] _list)
+        protected override void OnMenuEvent(string _nameEvent, params object[] _list)
 		{
-			if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
-			{
-				OnCancelEmail();
-			}
+            base.OnMenuEvent(_nameEvent, _list);
+
+            if (this.gameObject.activeSelf)
+            {
+                if (_nameEvent == UIEventController.EVENT_SCREENMANAGER_ANDROID_BACK_BUTTON)
+                {
+                    OnCancelEmail();
+                }
+            }
 		}
 	}
 }
