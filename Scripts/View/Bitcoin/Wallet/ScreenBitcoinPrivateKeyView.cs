@@ -61,8 +61,9 @@ namespace YourBitcoinManager
 		private InputField m_completeKey;
 		private GameObject m_seeComplete;
 		private GameObject m_emailPrivateKey;
+        private GameObject m_btnInfoPrivateKey;
 
-		private GameObject m_outputTransactionHistory;
+        private GameObject m_outputTransactionHistory;
 		private GameObject m_inputTransactionHistory;
 
 		private bool m_requestCheckValidKey = false;
@@ -164,7 +165,8 @@ namespace YourBitcoinManager
 			m_completeKey.text = LanguageController.Instance.GetText("screen.bitcoin.write.here.your.private.key");
 			m_completeKey.onValueChanged.AddListener(OnValueMainKeyChanged);
 			m_completeKey.onEndEdit.AddListener(OnEditedMainKeyChanged);
-			m_container.Find("InfoPrivateKey").GetComponent<Button>().onClick.AddListener(OnInfoPrivateKey);
+            m_btnInfoPrivateKey = m_container.Find("InfoPrivateKey").gameObject;
+            m_btnInfoPrivateKey.GetComponent<Button>().onClick.AddListener(OnInfoPrivateKey);
 
 			m_emailPrivateKey = m_container.Find("EmailPrivateKey").gameObject;
 			m_emailPrivateKey.GetComponent<Button>().onClick.AddListener(OnEmailPrivateKey);
@@ -720,7 +722,7 @@ namespace YourBitcoinManager
                 List<object> exchangeParams = new List<object>();
                 exchangeParams.Add(m_balanceValue);
                 exchangeParams.Add((string)_list[0]);
-                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenExchangeTableView.SCREEN_EXCHANGE_TABLE, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, exchangeParams);
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, 1, null, ScreenExchangeTableView.SCREEN_EXCHANGE_TABLE, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, exchangeParams.ToArray());
 #endif
             }
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_BALANCE_WALLET)
@@ -809,7 +811,7 @@ namespace YourBitcoinManager
 			}
 			if (_nameEvent == ScreenEmailPrivateKeyView.EVENT_SCREENENTEREMAIL_PRIVATE_KEY_CONFIRMATION)
 			{
-				Application.OpenURL("mailto:" + (string)_list[0] + "?subject=" + LanguageController.Instance.GetText("message.private.address") + "&body=" + LanguageController.Instance.GetText("screen.bitcoin.wallet.send.private.key.warning") + ":" + BitCoinController.Instance.CurrentPrivateKey);
+				Application.OpenURL("mailto:" + (string)_list[0] + "?subject=" + LanguageController.Instance.GetText("message.private.address") + "&body=" + LanguageController.Instance.GetText("screen.bitcoin.wallet.send.private.key.warning") + ":" + BitCoinController.Instance.CurrentPrivateKey + ", PUBLIC KEY=" + BitCoinController.Instance.CurrentPublicKey);
 			}
 			if (_nameEvent == ButtonEventCustom.EVENT_BUTTON_CUSTOM_PRESSED_DOWN)
 			{
@@ -819,13 +821,17 @@ namespace YourBitcoinManager
 					m_completeKey.contentType = UnityEngine.UI.InputField.ContentType.Standard;
 					m_completeKey.lineType = UnityEngine.UI.InputField.LineType.MultiLineNewline;
 					m_completeKey.ForceLabelUpdate();
-				}
+                    m_btnInfoPrivateKey.SetActive(false);
+                    m_emailPrivateKey.SetActive(false);
+                }
 			}
 			if (_nameEvent == ButtonEventCustom.EVENT_BUTTON_CUSTOM_RELEASE_UP)
 			{
 				m_completeKey.contentType = UnityEngine.UI.InputField.ContentType.Password;
 				m_completeKey.ForceLabelUpdate();
-			}
+                m_btnInfoPrivateKey.SetActive(true);
+                m_emailPrivateKey.SetActive(true);
+            }
 			if (_nameEvent == EVENT_SCREENPROFILE_LOAD_SCREEN_EXCHANGE_TABLES_INFO)
 			{
 				CommsHTTPConstants.GetBitcoinExchangeRatesTable();

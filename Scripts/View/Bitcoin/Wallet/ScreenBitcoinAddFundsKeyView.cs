@@ -122,7 +122,7 @@ namespace YourBitcoinManager
 				pages.Add(new PageInformation(title, LanguageController.Instance.GetText("screen.bitcoin.choose.your.own.method.bitcoins.to.paypal.2"), null, ""));
 				pages.Add(new PageInformation(title, LanguageController.Instance.GetText("screen.bitcoin.choose.your.own.method.bitcoins.to.paypal.3"), null, SUBEVENT_CONFIRMATION_OPEN_URL_BITCOINS_TO_PAYPAL));
 			}
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, pages);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, ScreenController.TOTAL_LAYERS_SCREENS - 1, null, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, pages);
         }
 
 		// -------------------------------------------

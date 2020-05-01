@@ -109,11 +109,13 @@ namespace YourBitcoinManager
 			string amountTransaction = "0";
 			string messageTransaction = LanguageController.Instance.GetText("screen.send.explain.please");
 
-			if (_list != null)
+            object[] objectParams = (object[])_list[0];
+
+			if (objectParams != null)
 			{
-				if (_list.Length > 0)
+				if (objectParams.Length > 0)
 				{
-                    List<object> sendBitcoinParams = (List<object>)_list[0];
+                    List<object> sendBitcoinParams = (List<object>)objectParams[0];
                     if (sendBitcoinParams != null)
                     {
                         publicKeyAddress = (string)sendBitcoinParams[0];
@@ -365,7 +367,7 @@ namespace YourBitcoinManager
 		private void OnSelectAddress()
 		{
 #if ENABLE_FULL_WALLET
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenSelectAddressFromView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false);
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, 1, null, ScreenSelectAddressFromView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false);
 #endif
         }
 
@@ -376,7 +378,7 @@ namespace YourBitcoinManager
 		private void OnSaveAddress()
 		{
 #if ENABLE_FULL_WALLET
-            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, ScreenEnterEmailView.SCREEN_NAME, UIScreenTypePreviousAction.HIDE_CURRENT_SCREEN, false, LanguageController.Instance.GetText("screen.enter.new.label.address"));
+            UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_LAYER_GENERIC_SCREEN, 1, null, ScreenEnterEmailView.SCREEN_NAME, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, false, LanguageController.Instance.GetText("screen.enter.new.label.address"));
 #endif
         }
 
