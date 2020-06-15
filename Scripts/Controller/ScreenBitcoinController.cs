@@ -9,7 +9,7 @@ namespace YourBitcoinManager
 	 * 
 	 * ScreenController
 	 * 
-	 * ScreenManager controller that handles all the screens's creation and disposal
+	 * ScreenManager controller that handles all the screens's creation and disposal for Bitcoin
 	 * 
 	 * 	To get Bitcoins in the Main Network:
 	 *  
