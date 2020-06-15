@@ -16,6 +16,8 @@ namespace YourBitcoinManager
 	 * 
 	 * ScreenBitcoinPrivateKeyView
 	 * 
+     * Screen that allows to manage an individual Bitcoin address
+     * 
 	 * @author Esteban Gallardo
 	 */
 	public class ScreenBitcoinPrivateKeyView : ScreenBaseView, IBasicView
