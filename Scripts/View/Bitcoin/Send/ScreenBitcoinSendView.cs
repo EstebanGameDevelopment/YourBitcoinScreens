@@ -13,6 +13,8 @@ namespace YourBitcoinManager
 	 * 
 	 * ScreenBitcoinSendView
 	 * 
+     * Screen that allows to specify a Bitcoin address to send crypto-currency
+     * 
 	 * @author Esteban Gallardo
 	 */
 	public class ScreenBitcoinSendView : ScreenBaseView, IBasicView
