@@ -775,7 +775,8 @@ namespace YourBitcoinManager
 				{
 					if ((bool)_list[1])
 					{
-						Destroy();
+                        BasicSystemEventController.Instance.DispatchBasicSystemEvent(EVENT_SCREENBITCOINPRIVATEKEY_CANCELATION);
+                        Destroy();
 					}
 				}
 				if (subEvent == SUB_EVENT_SCREENBITCOINPRIVATEKEY_CONFIRMATION_DELETE)
