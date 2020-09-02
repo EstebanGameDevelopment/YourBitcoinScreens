@@ -31,6 +31,7 @@ namespace YourBitcoinManager
 		// SUBS
 		// ----------------------------------------------	
 		private const string SUB_EVENT_SCREENBITCOIN_CONFIRMATION_EXIT_TRANSACTION	= "SUB_EVENT_SCREENBITCOIN_CONFIRMATION_EXIT_TRANSACTION";
+		private const string SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_ERROR_SEND   = "SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_ERROR_SEND";
 		private const string SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE			= "SUB_EVENT_SCREENBITCOIN_CONTINUE_WITH_LOW_FEE";
 		private const string SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE		= "SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_MESSAGE";
 
@@ -573,6 +574,10 @@ namespace YourBitcoinManager
                 {
                     BitcoinEventController.Instance.DispatchBitcoinEvent(BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_USER_ACKNOWLEDGE, m_transactionSuccess, m_transactionIDHex);
                 }
+                if (subEvent == SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_ERROR_SEND)
+                {
+                    BitcoinEventController.Instance.DispatchBitcoinEvent(BitCoinController.EVENT_BITCOINCONTROLLER_TRANSACTION_USER_ACKNOWLEDGE, false);
+                }
             }
             if (this.gameObject.activeSelf)
             {
@@ -608,7 +613,7 @@ namespace YourBitcoinManager
 					{
 						messageError = (string)_list[1];
 					}
-                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), messageError, null, "");
+                    UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INFORMATION, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.error"), messageError, null, SUB_EVENT_SCREENBITCOIN_USER_CONFIRMATION_ERROR_SEND);
                 }
 			}
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_SELECTED_PUBLIC_KEY)
