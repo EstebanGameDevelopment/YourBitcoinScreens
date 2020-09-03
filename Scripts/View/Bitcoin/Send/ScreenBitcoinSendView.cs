@@ -114,7 +114,9 @@ namespace YourBitcoinManager
 
             object[] objectParams = (object[])_list[0];
 
-			if (objectParams != null)
+            bool isFixedPayment = false;
+
+            if (objectParams != null)
 			{
 				if (objectParams.Length > 0)
 				{
@@ -129,6 +131,10 @@ namespace YourBitcoinManager
                             if (sendBitcoinParams.Count > 3)
                             {
                                 messageTransaction = (string)sendBitcoinParams[3];
+                                if (sendBitcoinParams.Count > 4)
+                                {
+                                    isFixedPayment = (bool)sendBitcoinParams[4];
+                                }
                             }
                         }
                     }
@@ -146,37 +152,44 @@ namespace YourBitcoinManager
 
 			// YOUR WALLET			
 			m_container.Find("YourWallet").GetComponent<Button>().onClick.AddListener(OnCheckWallet);
-			UpdateWalletButtonInfo();
+            UpdateWalletButtonInfo();
+            if (isFixedPayment) m_container.Find("YourWallet").GetComponent<Button>().enabled = false;
 
-			// PUBLIC KEY TO SEND
-			m_saveAddress = m_container.Find("Address/SaveAddress").gameObject;
+            // PUBLIC KEY TO SEND
+            m_saveAddress = m_container.Find("Address/SaveAddress").gameObject;
 			m_saveAddress.GetComponent<Button>().onClick.AddListener(OnSaveAddress);
 			m_saveAddress.SetActive(false);
+            if (isFixedPayment) m_saveAddress.GetComponent<Button>().enabled = false;
 
-			m_validAddress = m_container.Find("Address/ValidAddress").gameObject;
+            m_validAddress = m_container.Find("Address/ValidAddress").gameObject;
 			m_validAddress.GetComponent<Button>().onClick.AddListener(OnAddressValid);
 			m_validAddress.SetActive(false);
+            if (isFixedPayment) m_validAddress.GetComponent<Button>().enabled = false;
 
-			m_container.Find("Address/Label").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.send.write.destination.address");
-			m_publicAddressInput = m_container.Find("Address/PublicKey").GetComponent<InputField>();
-			m_publicAddressInput.onValueChanged.AddListener(OnValuePublicKeyChanged);			
-			m_container.Find("Address/SelectAddress").GetComponent<Button>().onClick.AddListener(OnSelectAddress);
-			m_container.Find("Address/SelectAddress/Text").GetComponent<Text>().text = LanguageController.Instance.GetText("message.addresses");
+            m_container.Find("Address/Label").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.send.write.destination.address");
+			m_publicAddressInput = m_container.Find("Address/PublicKey").GetComponent<InputField>();            
+            m_publicAddressInput.onValueChanged.AddListener(OnValuePublicKeyChanged);
+            if (isFixedPayment) m_publicAddressInput.enabled = false;
+
+            m_container.Find("Address/SelectAddress").GetComponent<Button>().onClick.AddListener(OnSelectAddress);
+            if (isFixedPayment) m_container.Find("Address/SelectAddress").GetComponent<Button>().enabled = false;
+            m_container.Find("Address/SelectAddress/Text").GetComponent<Text>().text = LanguageController.Instance.GetText("message.addresses");
 #if !ENABLE_FULL_WALLET
 			m_container.Find("Address/SelectAddress").gameObject.SetActive(false);
 #endif
-			m_publicAddressInput.text = publicKeyAddress;
+            m_publicAddressInput.text = publicKeyAddress;
 
 			// AMOUNT
 			m_container.Find("Amount/Label").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.send.amount.to.send");
 			m_amountInput = m_container.Find("Amount/Value").GetComponent<InputField>();
-			m_amountInput.onValueChanged.AddListener(OnValueAmountChanged);
+            m_amountInput.onValueChanged.AddListener(OnValueAmountChanged);
 			m_amountInCurrency = amountTransaction;
 			m_amountInput.text = m_amountInCurrency;
+            if (isFixedPayment) m_amountInput.enabled = false;
 
-			// CURRENCIES
-			m_currencies = m_container.Find("Amount/Currency").GetComponent<Dropdown>();
-			m_currencies.onValueChanged.AddListener(OnCurrencyChanged);
+            // CURRENCIES
+            m_currencies = m_container.Find("Amount/Currency").GetComponent<Dropdown>();
+            m_currencies.onValueChanged.AddListener(OnCurrencyChanged);
 			m_currencies.options = new List<Dropdown.OptionData>();
 			int indexCurrentCurrency = -1;
 			for (int i = 0; i < BitCoinController.CURRENCY_CODE.Length; i++)
@@ -187,25 +200,28 @@ namespace YourBitcoinManager
 				}
 				m_currencies.options.Add(new Dropdown.OptionData(BitCoinController.CURRENCY_CODE[i]));
 			}
+            if (isFixedPayment) m_currencies.enabled = false;
 
-			// FEE
-			m_container.Find("Fee/Label").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.send.fee.to.miners");
+            // FEE
+            m_container.Find("Fee/Label").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.send.fee.to.miners");
 			m_feeInput = m_container.Find("Fee/Value").GetComponent<InputField>();
 			m_feeInput.onValueChanged.AddListener(OnValueFeeChanged);
 			m_feeInCurrency = "0";
 			m_feeInput.text = m_feeInCurrency;
+            if (isFixedPayment) m_feeInput.enabled = false;
 
-			// FEE SUGGESTED
-			m_fees = m_container.Find("Fee/Type").GetComponent<Dropdown>();
+            // FEE SUGGESTED
+            m_fees = m_container.Find("Fee/Type").GetComponent<Dropdown>();
 			m_fees.onValueChanged.AddListener(OnFeeSuggestedChanged);
 			m_fees.options = new List<Dropdown.OptionData>();
 			for (int i = 0; i < BitCoinController.FEES_SUGGESTED.Length; i++)
 			{
 				m_fees.options.Add(new Dropdown.OptionData(BitCoinController.FEES_SUGGESTED[i]));
 			}
+            if (isFixedPayment) m_fees.enabled = false;
 
-			// MESSAGE
-			m_container.Find("Pay/MessageTitle").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.send.write.description.transaction");
+            // MESSAGE
+            m_container.Find("Pay/MessageTitle").GetComponent<Text>().text = LanguageController.Instance.GetText("screen.send.write.description.transaction");
 			m_messageInput = m_container.Find("Pay/Message").GetComponent<InputField>();
 			m_messageInput.text = messageTransaction;
 			m_container.Find("Pay/ExecutePayment").GetComponent<Button>().onClick.AddListener(OnExecutePayment);
