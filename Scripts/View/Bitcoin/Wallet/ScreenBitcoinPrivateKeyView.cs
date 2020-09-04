@@ -24,10 +24,12 @@ namespace YourBitcoinManager
 	{
 		public const string SCREEN_NAME = "SCREEN_WALLET";
 
-		// ----------------------------------------------
-		// EVENTS
-		// ----------------------------------------------	
-		public const string EVENT_SCREENPROFILE_SERVER_REQUEST_RESET_PASSWORD_CONFIRMATION	= "EVENT_SCREENPROFILE_SERVER_REQUEST_RESET_PASSWORD_CONFIRMATION";
+        public const bool DEBUG_FORCE_BUTTON_INIT_BLOCKCHAIN = true;
+
+        // ----------------------------------------------
+        // EVENTS
+        // ----------------------------------------------	
+        public const string EVENT_SCREENPROFILE_SERVER_REQUEST_RESET_PASSWORD_CONFIRMATION	= "EVENT_SCREENPROFILE_SERVER_REQUEST_RESET_PASSWORD_CONFIRMATION";
 		public const string EVENT_SCREENPROFILE_LOAD_SCREEN_EXCHANGE_TABLES_INFO			= "EVENT_SCREENPROFILE_LOAD_SCREEN_EXCHANGE_TABLES_INFO";
 		public const string EVENT_SCREENPROFILE_LOAD_CHECKING_KEY_PROCESS					= "EVENT_SCREENPROFILE_LOAD_CHECKING_KEY_PROCESS";
 		public const string EVENT_SCREENBITCOINPRIVATEKEY_SEND_PRIVATE_KEY_EMAIL			= "EVENT_SCREENBITCOINPRIVATEKEY_SEND_PRIVATE_KEY_EMAIL";
@@ -82,7 +84,9 @@ namespace YourBitcoinManager
 		private GameObject m_buttonSave;
 		private GameObject m_buttonDelete;
 
-		private bool m_considerEnableEdition = false;
+        private GameObject m_buttonInitBlockchain;
+
+        private bool m_considerEnableEdition = false;
 		private bool m_enableEdition = true;
 		private bool m_enableDelete = false;
 		private string m_currentPublicKey = "";
@@ -204,7 +208,14 @@ namespace YourBitcoinManager
 			m_buttonSave.SetActive(false);
 			HasChanged = false;
 
-			m_buttonDelete = m_container.Find("Button_Delete").gameObject;
+            if (m_container.Find("Button_InitBlockchain") != null)
+            {
+                m_buttonInitBlockchain = m_container.Find("Button_InitBlockchain").gameObject;
+                m_buttonInitBlockchain.GetComponent<Button>().onClick.AddListener(OnInitBlockchain);
+                m_buttonInitBlockchain.SetActive(DEBUG_FORCE_BUTTON_INIT_BLOCKCHAIN);
+            }
+
+            m_buttonDelete = m_container.Find("Button_Delete").gameObject;
 			m_buttonDelete.GetComponent<Button>().onClick.AddListener(OnDeleteButton);
 			m_buttonDelete.SetActive(false);
 
@@ -230,11 +241,11 @@ namespace YourBitcoinManager
 			UpdateEnableEdition();
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		 * Destroy
 		 */
-		public override bool Destroy()
+        public override bool Destroy()
 		{
 			if (base.Destroy()) return true;
 
@@ -430,11 +441,20 @@ namespace YourBitcoinManager
 			}
 		}
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * OnInitBlockchain
+		 */
+        private void OnInitBlockchain()
+        {
+            m_completeKey.text = "cSkjiSMJBqtHT3wzMESMwGZskF2xwssUFqq1uVb4SaXgHe17SJSa";
+        }
+
+        // -------------------------------------------
+        /* 
 		 * OnBackButton
 		 */
-		private void OnBackButton()
+        private void OnBackButton()
 		{
 			if (HasChanged)
 			{
@@ -459,7 +479,7 @@ namespace YourBitcoinManager
 			{
 				m_requestCheckValidKey = false;
                 UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_WAIT, UIScreenTypePreviousAction.KEEP_CURRENT_SCREEN, LanguageController.Instance.GetText("message.info"), LanguageController.Instance.GetText("message.please.wait"), null, "");
-                Invoke("CheckKeyEnteredInMainField", 0.1f);
+                Invoke("CheckKeyEnteredInMainField", 0.5f);
 			}
 			else
 			{
@@ -732,7 +752,9 @@ namespace YourBitcoinManager
 #if DEBUG_MODE_DISPLAY_LOG
 				Debug.Log("EVENT_BITCOINCONTROLLER_BALANCE_WALLET::m_balanceValue=" + m_balanceValue);
 #endif
-				m_balanceValue = (decimal)((float)_list[0]);
+                UIEventController.Instance.DispatchUIEvent(ScreenController.EVENT_FORCE_DESTRUCTION_WAIT);
+
+                m_balanceValue = (decimal)((float)_list[0]);
 				m_buttonBalance.SetActive(true);
 				m_outputTransactionHistory.SetActive(true);
 				m_inputTransactionHistory.SetActive(true);
@@ -766,7 +788,9 @@ namespace YourBitcoinManager
 		{
 			base.OnMenuEvent(_nameEvent, _list);
 
-			if (!this.gameObject.activeSelf) return;
+#if !(ENABLE_OCULUS || ENABLE_WORLDSENSE)
+            if (!this.gameObject.activeSelf) return;
+#endif
 
 			if (_nameEvent == ScreenController.EVENT_CONFIRMATION_POPUP)
 			{

@@ -1,6 +1,7 @@
 using UnityEngine;
 using YourBitcoinController;
 using YourCommonTools;
+using YourNetworkingTools;
 
 namespace YourBitcoinManager
 {
@@ -21,8 +22,8 @@ namespace YourBitcoinManager
 	 *
 	 * @author Esteban Gallardo
 	 */
-	public class ScreenBitcoinController : ScreenController
-	{
+	public class ScreenBitcoinController : FunctionsScreenController
+    {
 		// ----------------------------------------------
 		// EVENTS
 		// ----------------------------------------------	
@@ -60,20 +61,22 @@ namespace YourBitcoinManager
 		private object[] m_optionalParams = null;
 
 
-		// ----------------------------------------------
-		// GETTERS/SETTERS
-		// ----------------------------------------------	
+        // ----------------------------------------------
+        // GETTERS/SETTERS
+        // ----------------------------------------------	
 
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
 		* Awake
 		*/
-		void Awake()
-		{
+        public override void Awake()
+        {
 			System.Globalization.CultureInfo customCulture = (System.Globalization.CultureInfo)System.Threading.Thread.CurrentThread.CurrentCulture.Clone();
 			customCulture.NumberFormat.NumberDecimalSeparator = ".";
 			System.Threading.Thread.CurrentThread.CurrentCulture = customCulture;
+
+            base.Awake();
 		}
 
 		// -------------------------------------------
@@ -94,34 +97,43 @@ namespace YourBitcoinManager
 #endif
 
 #if ENABLE_BITCOIN            
-            UIEventController.Instance.UIEvent += new UIEventHandler(OnUIEvent);
 			BitcoinEventController.Instance.BitcoinEvent += new BitcoinEventHandler(OnBitcoinEvent);
 
 			if (ScreenToLoad.Length > 0)
 			{
 				LanguageController.Instance.Initialize();
 
-				InitializeBitcoin(ScreenToLoad);
+				InitializeBitcoin(UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, ScreenToLoad);
 			}
+#else
+            EnableProcessEvents = false;
 #endif
         }
 
-		// -------------------------------------------
-		/* 
+        // -------------------------------------------
+        /* 
+		 * StartSplashScreen
+		 */
+        public override void StartSplashScreen()
+        {
+        }
+
+        // -------------------------------------------
+        /* 
 		 * InitializeBitcoin
 		 */
-		public virtual void InitializeBitcoin(string _screenToLoad = "", params object[] _optionalParams)
+        public virtual void InitializeBitcoin(UIScreenTypePreviousAction _typeAction, string _screenToLoad = "", params object[] _optionalParams)
 		{
 			m_screenToLoad = _screenToLoad;
 			m_optionalParams = _optionalParams;
 			if (m_hasBeenInitialized)
 			{
-                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, m_screenToLoad, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, true, m_optionalParams);
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_GENERIC_SCREEN, m_screenToLoad, _typeAction, true, m_optionalParams);
 
             }
 			else
 			{
-                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INITIAL_CONNECTION, UIScreenTypePreviousAction.DESTROY_ALL_SCREENS, LanguageController.Instance.GetText("message.your.bitcoin.manager.title"), LanguageController.Instance.GetText("message.connecting.to.blockchain"), null, null);
+                UIEventController.Instance.DispatchUIEvent(UIEventController.EVENT_SCREENMANAGER_OPEN_INFORMATION_SCREEN, ScreenInformationView.SCREEN_INITIAL_CONNECTION, _typeAction, LanguageController.Instance.GetText("message.your.bitcoin.manager.title"), LanguageController.Instance.GetText("message.connecting.to.blockchain"), null, null);
 
                 Invoke("InitializeRealBitcoin", 0.1f);
 			}
@@ -145,7 +157,6 @@ namespace YourBitcoinManager
 			base.Destroy();
 
 #if ENABLE_BITCOIN
-            UIEventController.Instance.UIEvent -= OnUIEvent;
 			BitcoinEventController.Instance.BitcoinEvent -= OnBitcoinEvent;
 
 			LanguageController.Instance.Destroy();

@@ -208,7 +208,6 @@ namespace YourBitcoinManager
 			m_feeInput.onValueChanged.AddListener(OnValueFeeChanged);
 			m_feeInCurrency = "0";
 			m_feeInput.text = m_feeInCurrency;
-            if (isFixedPayment) m_feeInput.enabled = false;
 
             // FEE SUGGESTED
             m_fees = m_container.Find("Fee/Type").GetComponent<Dropdown>();
@@ -567,7 +566,9 @@ namespace YourBitcoinManager
                 Invoke("OnExecuteRealPayment", 0.1f);
             }
 
+#if !(ENABLE_OCULUS || ENABLE_WORLDSENSE)
             if (!this.gameObject.activeSelf) return;
+#endif
 
             if (_nameEvent == ScreenController.EVENT_CONFIRMATION_POPUP)
             {
