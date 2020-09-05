@@ -24,8 +24,6 @@ namespace YourBitcoinManager
 	{
 		public const string SCREEN_NAME = "SCREEN_WALLET";
 
-        public const bool DEBUG_FORCE_BUTTON_INIT_BLOCKCHAIN = true;
-
         // ----------------------------------------------
         // EVENTS
         // ----------------------------------------------	
@@ -33,6 +31,7 @@ namespace YourBitcoinManager
 		public const string EVENT_SCREENPROFILE_LOAD_SCREEN_EXCHANGE_TABLES_INFO			= "EVENT_SCREENPROFILE_LOAD_SCREEN_EXCHANGE_TABLES_INFO";
 		public const string EVENT_SCREENPROFILE_LOAD_CHECKING_KEY_PROCESS					= "EVENT_SCREENPROFILE_LOAD_CHECKING_KEY_PROCESS";
 		public const string EVENT_SCREENBITCOINPRIVATEKEY_SEND_PRIVATE_KEY_EMAIL			= "EVENT_SCREENBITCOINPRIVATEKEY_SEND_PRIVATE_KEY_EMAIL";
+		public const string EVENT_SCREENBITCOINPRIVATEKEY_INITIALIZE_BITCOIN_WITH			= "EVENT_SCREENBITCOINPRIVATEKEY_INITIALIZE_BITCOIN_WITH";
 
         public const string EVENT_SCREENBITCOINPRIVATEKEY_CANCELATION = "EVENT_SCREENBITCOINPRIVATEKEY_CANCELATION";
 
@@ -83,8 +82,6 @@ namespace YourBitcoinManager
 		private bool m_hasChanged = false;
 		private GameObject m_buttonSave;
 		private GameObject m_buttonDelete;
-
-        private GameObject m_buttonInitBlockchain;
 
         private bool m_considerEnableEdition = false;
 		private bool m_enableEdition = true;
@@ -207,13 +204,6 @@ namespace YourBitcoinManager
 			m_buttonSave.GetComponent<Button>().onClick.AddListener(OnSaveButton);
 			m_buttonSave.SetActive(false);
 			HasChanged = false;
-
-            if (m_container.Find("Button_InitBlockchain") != null)
-            {
-                m_buttonInitBlockchain = m_container.Find("Button_InitBlockchain").gameObject;
-                m_buttonInitBlockchain.GetComponent<Button>().onClick.AddListener(OnInitBlockchain);
-                m_buttonInitBlockchain.SetActive(DEBUG_FORCE_BUTTON_INIT_BLOCKCHAIN);
-            }
 
             m_buttonDelete = m_container.Find("Button_Delete").gameObject;
 			m_buttonDelete.GetComponent<Button>().onClick.AddListener(OnDeleteButton);
@@ -440,15 +430,6 @@ namespace YourBitcoinManager
 				}
 			}
 		}
-
-        // -------------------------------------------
-        /* 
-		 * OnInitBlockchain
-		 */
-        private void OnInitBlockchain()
-        {
-            m_completeKey.text = "cSkjiSMJBqtHT3wzMESMwGZskF2xwssUFqq1uVb4SaXgHe17SJSa";
-        }
 
         // -------------------------------------------
         /* 
@@ -737,6 +718,11 @@ namespace YourBitcoinManager
 		 */
 		private void OnBitcoinEvent(string _nameEvent, params object[] _list)
 		{
+            if (_nameEvent == EVENT_SCREENBITCOINPRIVATEKEY_INITIALIZE_BITCOIN_WITH)
+            {
+                m_completeKey.text = (string)_list[0];
+                Invoke("CheckKeyEnteredInMainField", 0.1f);
+            }
 			if (_nameEvent == BitCoinController.EVENT_BITCOINCONTROLLER_JSON_EXCHANGE_TABLE)
 			{
 #if ENABLE_FULL_WALLET
